@@ -1,0 +1,24 @@
+body,html
+{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    color: black;
+}
+
+canvas {
+    width: 640px;
+    height: 640px;
+    overflow: auto;
+
+    vertical-align: top;
+    display: none;
+    overflow: auto;
+}
+
+@media screen and (max-device-width : 480px) {
+    canvas {
+        width: 480px;
+        height: 480px;
+    }
+}
