@@ -59,7 +59,7 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             jobqueue.push(0, _this._resize);
         },
         _resize: function() {
-            if (g.ANDROID || g.MOBILE) {
+            if (g.BARSIZE > 0) {
                 $canvas.height($(window).height() + g.BARSIZE);
             }
             var width = $canvas.width() * g.SCALE,
@@ -73,11 +73,8 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             $canvas.attr('height', height);
             //log.info("engine resize to "+width+"x"+height+" ts:"+(new Date().getTime() - g.INITTIME));
 
-            if (g.ANDROID || g.MOBILE) {
-                scrollTo(0,1);
-                if (g.BARSIZE + canvas.height < window.outerHeight) {
-                    $canvas.height($(window).height());
-                }
+            if (g.BARSIZE > 0) {
+                setTimeout(function() { scrollTo(0,1); }, 100);
             }
             //context.fillStyle = 'red';
             //context.fillRect(0, 0, width, height);

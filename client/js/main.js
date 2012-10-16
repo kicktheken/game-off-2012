@@ -12,12 +12,16 @@ define(["jquery", "engine"], function($, Engine) {
     //var music = {};
     //music.play = function() {};
 
+
     g.ts = function() { return new Date().getTime(); }
     g.INITTIME = g.ts();
-    g.MOBILE = navigator.userAgent.match(/(Mobile)/) && Modernizr.touch; // is Mobile
-    g.ANDROID = navigator.userAgent.match(/(Android)/); // is Android
+    var android = navigator.userAgent.match(/Android\s\d/i),
+        apple = navigator.userAgent.match(/Mac OS/i);
+    if (android && parseInt(android[0].substr(android.length-2,1)) < 3) {
+        alert("You are using outdated version of Android and may not be well supported");
+    }
     g.SCALE = (g.MOBILE) ? 2 : 1;
-    g.BARSIZE = (window.navigator.standalone) ? 0 : (g.ANDROID) ? 52 : 60;
+    g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
 
     var initApp = function() {
         //log.info("document ready");
