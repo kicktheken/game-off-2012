@@ -15,11 +15,8 @@ define(["jquery", "engine"], function($, Engine) {
 
     g.ts = function() { return new Date().getTime(); }
     g.INITTIME = g.ts();
-    var android = navigator.userAgent.match(/Android\s\d/i),
+    var android = navigator.userAgent.match(/Android\s[3-9]\./i), // is Android 3.0+
         apple = navigator.userAgent.match(/Mac OS/i);
-    if (android && parseInt(android[0].substr(android.length-2,1)) < 3) {
-        alert("You are using outdated version of Android and may not be well supported");
-    }
     g.SCALE = (g.MOBILE) ? 2 : 1;
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
     var random = Alea();
