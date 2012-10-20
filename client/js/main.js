@@ -22,6 +22,8 @@ define(["jquery", "engine"], function($, Engine) {
     }
     g.SCALE = (g.MOBILE) ? 2 : 1;
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
+    var random = Alea();
+    Math.random = random.fract53;
 
     var initApp = function() {
         //log.info("document ready");
