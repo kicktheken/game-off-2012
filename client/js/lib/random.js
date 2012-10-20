@@ -62,9 +62,6 @@ function Alea() {
         random.uint32 = function() {
             return random() * 0x100000000; // 2^32
         };
-        random.int64 = function() {
-            return random() * 0x100000000 + random() * 0x10000000000000000;
-        };
         random.fract53 = function() {
             return random() + (random() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
         };
