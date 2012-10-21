@@ -59,9 +59,8 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             jobqueue.push(0, _this._resize);
         },
         _resize: function() {
-            if (g.BARSIZE > 0) {
-                $canvas.height($(window).height() + g.BARSIZE);
-            }
+            $canvas.height($(window).height() + g.BARSIZE);
+
             var width = $canvas.width() * g.SCALE,
                 height = $canvas.height() * g.SCALE,
                 oldwidth = $canvas.attr('width'),
