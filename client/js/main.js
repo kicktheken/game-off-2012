@@ -1,4 +1,4 @@
-define(["jquery", "engine"], function($, Engine) {
+define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoise) {
     var engine, $canvas, ctx,
         capabilities = ["canvas", "canvastext", "audio", "localstorage", "sessionstorage", "webworkers"];
 
@@ -19,8 +19,12 @@ define(["jquery", "engine"], function($, Engine) {
         apple = navigator.userAgent.match(/Mac OS/i);
     g.SCALE = (g.MOBILE) ? 2 : 1;
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
-    var random = Alea();
-    Math.random = random.fract53;
+    var getparams = window.location.search.replace("?","");
+    var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
+    g.simplex = new SimplexNoise(rng.fract53);
+    Math.random = rng.fract53;
+    g.simplex.d = 128;
+    g.simplex.s = Math.random();
 
     var initApp = function() {
         //log.info("document ready");

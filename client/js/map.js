@@ -1,10 +1,5 @@
 define(function() {
     var _this, zonewidth, zoneheight, zonemap, map;
-    var rcg = []; //random color generators
-    rcg.push(function() { return [80,Math.floor(Math.random()*81)+150,20] }); // green
-    rcg.push(function() { var c = Math.floor(Math.random()*101)+150;return [0,c-50,c]}); // blue
-    rcg.push(function() { var c = Math.floor(Math.random()*51)+150; return [c,c-20,0] }); // yellow
-    rcg.push(function() { var c = Math.floor(Math.random()*51)+60; return [c,Math.floor(c/3*2),0] }); // brown
 
     return Class.extend({
         init: function(_zonewidth, _zoneheight) {
@@ -14,8 +9,25 @@ define(function() {
             zonewidth = _zonewidth;
             zoneheight = _zoneheight;
         },
-        randomColor: function() {
-            return rcg[Math.floor(Math.random()*rcg.length)]();
+        randomColor: function(x,y) {
+            var r = g.simplex.noise3D(x/g.simplex.d, y/g.simplex.d, g.simplex.s), c;
+            if (r < -.6) {
+                c = Math.floor((r+1) / .4 * 101) + 120;
+                return [0,c-50,c]; // blue
+            }
+            if (r < -.2) {
+                c = Math.floor((-.2-r) / .4 * 51) + 150;
+                return [c,c-20,0]; // yellow
+            }
+            if (r < .2) {
+                return [80, Math.floor((.2-r) / .4 * 81) + 120,20]; // green
+            }
+            if (r < .6) {
+                c = Math.floor((r-.2) / .4 * 51) + 60;
+                return [c,Math.floor(c/3*2),0]; // brown
+            }
+            c = Math.floor((r-.6) / .4 * 51) + 200;
+            return [c-40,c-20,c]; // white
         },
         assign: function(x,y) {
             if (zonemap[y] === undefined) {
@@ -46,7 +58,7 @@ define(function() {
                         map[row] = {};
                     }
                     if (map[row][col] === undefined) {
-                        map[row][col] = _this.randomColor();
+                        map[row][col] = _this.randomColor(col,row);
                     }
                 }
             }
