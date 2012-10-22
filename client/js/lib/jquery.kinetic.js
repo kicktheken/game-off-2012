@@ -4,6 +4,8 @@
 
     The MIT License (MIT)
     Copyright (c) <2011> <Dave Taylor http://the-taylors.org>
+
+    Modified by Kenneth Chan <kicktheken@gmail.com>
 */
 /*global define,require */
 (function($){
@@ -16,6 +18,7 @@
                               , slowdown: 0.9
                               , maxvelocity: 40 
                               , throttleFPS: 60
+                              , showCursor: true
                               , movingClass: {
                                   up:    'kinetic-moving-up'
                                 , down:  'kinetic-moving-down'
@@ -31,26 +34,6 @@
                               },
         SETTINGS_KEY        = 'kinetic-settings',
         ACTIVE_CLASS        = 'kinetic-active';
-
-    /**
-     * Provides requestAnimationFrame in a cross browser way.
-     * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-     */
-    if ( !window.requestAnimationFrame ) {
-
-        window.requestAnimationFrame = ( function() {
-
-            return window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
-                window.setTimeout( callback, 1000 / 60 );
-            };
-
-        }());
-
-    }
 
     // add touch checker to jQuery.support
     $.support = $.support || {};
@@ -142,7 +125,7 @@
 
         if (Math.abs(settings.velocity) > 0 || Math.abs(settings.velocityY) > 0) {
             // tick for next movement
-            window.requestAnimationFrame(function(){ move($scroller, settings); });
+            settings.requestAnimFrame(function(){ move($scroller, settings); });
         } else {
             stop($scroller, settings);
         }
@@ -173,9 +156,9 @@
             .mouseup(settings.events.inputEnd)
             .mousemove(settings.events.inputMove);
         }
-        $this.click(settings.events.inputClick)
-        .bind("selectstart", selectStart); // prevent selection when dragging
-        $this.bind('dragstart', settings.events.dragStart);
+        //$this.click(settings.events.inputClick)
+        //.bind("selectstart", selectStart); // prevent selection when dragging
+        //$this.bind('dragstart', settings.events.dragStart);
     };
     var detachListeners = function($this, settings) {
         var element = $this[0];
@@ -189,9 +172,9 @@
             .unbind('mouseup', settings.events.inputEnd)
             .unbind('mousemove', settings.events.inputMove);
         }
-        $this.unbind('click', settings.events.inputClick)
-        .unbind("selectstart", selectStart); // prevent selection when dragging
-        $this.unbind('dragstart', settings.events.dragStart);
+        //$this.unbind('click', settings.events.inputClick)
+        //.unbind("selectstart", selectStart); // prevent selection when dragging
+        //$this.unbind('dragstart', settings.events.dragStart);
     };
 
     var initElements = function(options) {
@@ -328,9 +311,11 @@
                     }
                 }
             };
-            
+
             attachListeners($this, settings);
-            $this.data(SETTINGS_KEY, settings).css("cursor", "move");
+            if (settings.showCursor) {
+                $this.data(SETTINGS_KEY, settings).css("cursor", "move");
+            }
 
             if (settings.triggerHardware) {
                 $this.css('-webkit-transform', 'translate3d(0,0,0)');
@@ -346,6 +331,22 @@
                     settings = $.extend(settings, options);
                 if (settings) {
                     settings.decelerate = false;
+                    if (typeof settings.requestAnimFrame !== "function") {
+                        /**
+                         * Provides requestAnimationFrame in a cross browser way.
+                         * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+                         */
+                        settings.requestAnimFrame = (function() {
+                            return  window.requestAnimationFrame       || 
+                                    window.webkitRequestAnimationFrame || 
+                                    window.mozRequestAnimationFrame    || 
+                                    window.oRequestAnimationFrame      || 
+                                    window.msRequestAnimationFrame     || 
+                                    function(/* function */ callback, /* DOMElement */ element){
+                                        window.setTimeout(callback, 1000 / settings.throttleFPS);
+                                    };
+                        });
+                    }
                     move($this, settings);
                 }
             },
@@ -363,16 +364,16 @@
             detach: function(settings, options) {
                 var $this = $(this);
                 detachListeners($this, settings);
-                $this
-                .removeClass(ACTIVE_CLASS)
-                .css("cursor", "");
+                if (settings.showCursor) {
+                    $this.removeClass(ACTIVE_CLASS).css("cursor", "");
+                }
             },
             attach: function(settings, options) {
                 var $this = $(this);
                 attachListeners($this, settings);
-                $this
-                .addClass(ACTIVE_CLASS)
-                .css("cursor", "move");
+                if (settings.showCursor) {
+                    $this.addClass(ACTIVE_CLASS).css("cursor", "move");
+                }
             }
         }
     };

@@ -29,8 +29,23 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             mousedown = false;
             center = {x:0, y:0};
             //log.setCallback(_this.showStatus);
-            //_this.generateTilesInScreen();
-            //_this.save();
+
+            // enable inertia scrolling on non IE browsers
+            if (!g.IE) {
+                var moved = function (settings) {
+                    _this.scroll(settings.scrollLeft, settings.scrollTop);
+                };
+                var requestAnimFrame = function(job) {
+                    jobqueue.push(0, job);
+                };
+                $canvas.kinetic({
+                    moved: moved,
+                    requestAnimFrame: requestAnimFrame,
+                    showCursor: false,
+                    triggerHardware: true
+                });
+            }
+
             _this.resize();
 
 
@@ -43,7 +58,7 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
         // return [startx,starty,endx,endy] in map coordinates
         getZoneCoords: function() {
             var ret = [], x = Math.floor(center.x/bwidth + .5), y = Math.floor(center.y/bheight + .5),
-                modx = (center.x + bwidth/2)%bwidth, mody = (center.y +bheight/2)%bheight;
+                modx = Math.round(center.x + bwidth/2)%bwidth, mody = Math.round(center.y +bheight/2)%bheight;
             if (modx < 0) modx = bwidth + modx;
             if (mody < 0) mody = bheight + mody;
             ret.push(x-Math.ceil((canvas.width/2 - modx)/bwidth));
@@ -75,20 +90,6 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             if (g.BARSIZE > 0) {
                 setTimeout(function() { scrollTo(0,1); }, 100);
             }
-            //context.fillStyle = 'red';
-            //context.fillRect(0, 0, width, height);
-            //context.fillStyle = 'white';
-            //context.fillRect(10, 10, width - 20, height - 20);
-            /*if (!center) {
-                center = {
-                    x: (canvas.width - bwidth)/2,
-                    y: (canvas.height - bheight)/2
-                };
-                //log.info("engine set center "+(new Date().getTime() - g.INITTIME));
-            } else { // recenter
-                center.x += (width - oldwidth)/2;
-                center.y += (height - oldheight)/2;
-            }*/
             jobqueue.push(0, _this.load);
 
             //_this.load();
@@ -115,7 +116,6 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             if (mousedown) {
                 var sx = mousedown.x - x,
                     sy = mousedown.y - y;
-                    //context.translate(sx,sy);
                     mousedown.x = x;
                     mousedown.y = y;
                 _this.scroll(sx, sy);
@@ -142,8 +142,8 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             if (!zone) {
                 return null;
             }
-            var x = mx*bwidth - center.x + (canvas.width-bwidth)/2,
-                y = my*bheight - center.y + (canvas.height-bheight)/2;
+            var x = mx*bwidth - Math.round(center.x) + (canvas.width-bwidth)/2,
+                y = my*bheight - Math.round(center.y) + (canvas.height-bheight)/2;
             _this.drawImage(x,y,zone);
         },
         load: function() {
@@ -156,8 +156,8 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                 for (var mx=zoneCoords[0]; mx<=zoneCoords[2]; mx++) {
                     var zone = map.loadZone(mx,my);
                     if (zone) {
-                        var x = mx*bwidth - center.x + (canvas.width-bwidth)/2,
-                            y = my*bheight - center.y + (canvas.height-bheight)/2;
+                        var x = mx*bwidth - Math.round(center.x) + (canvas.width-bwidth)/2,
+                            y = my*bheight - Math.round(center.y) + (canvas.height-bheight)/2;
                         //log.info(mx+","+my,true);
                         _this.drawImage(x,y,zone);
                     } else if (painters[0].isPaused()) {

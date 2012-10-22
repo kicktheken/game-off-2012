@@ -3,10 +3,14 @@ define([
     "lib/random",
     "lib/stacktrace",
     "lib/util",
-    "lib/log",
-    "lib/jquery.kinetic"
+    "lib/log"
 ],
 function() {
-    require(['main']);
+    g.IE = /\WMSIE [0-9]\./i.test(navigator.userAgent);
+    if (g.IE) {
+        require(["lib/typedarray", "main"]);
+    } else {
+        require(["lib/jquery.kinetic", "main"]);
+    }
 });
 
