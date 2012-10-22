@@ -37,6 +37,12 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
             engine.resize();
         });
 
+        var moved = function (settings) {
+            engine.scroll(settings.scrollLeft, settings.scrollTop);
+        };
+        $canvas.kinetic({ moved: moved });
+
+        /*
         if (g.MOBILE) {
             $canvas.bind('touchstart', function(e) {
                 e = e.originalEvent.touches[0];
@@ -66,6 +72,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
             });
 
         //}
+        */
         //$canvas.mousemove(function(e) {
         //    console.log(e);
         //});

@@ -3,7 +3,8 @@ define([
     "lib/random",
     "lib/stacktrace",
     "lib/util",
-    "lib/log"
+    "lib/log",
+    "lib/jquery.kinetic"
 ],
 function() {
     require(['main']);
