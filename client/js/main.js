@@ -16,7 +16,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     g.ts = function() { return new Date().getTime(); }
     g.INITTIME = g.ts();
     var android = /Android\s[3-9]\./i.test(navigator.userAgent), // is Android 3.0+
-        apple = /Mac OS/i.test(navigator.userAgent)
+        apple = /Mac OS.+Version\/[0-9]\.[0-9]/i.test(navigator.userAgent); // is Mobile Safari
     g.SCALE = (g.MOBILE) ? 2 : 1;
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
     var getparams = window.location.search.replace("?","");
