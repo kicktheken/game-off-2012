@@ -23,7 +23,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
     g.simplex = new SimplexNoise(rng.fract53);
     Math.random = rng.fract53;
-    g.simplex.d = 128;
+    g.simplex.d = 32;
     g.simplex.s = Math.random();
 
     var initApp = function() {

@@ -1,6 +1,7 @@
 define(function() {
     var _this, zonewidth, zoneheight, zonemap, map;
 
+    var rcg = [];
     return Class.extend({
         init: function(_zonewidth, _zoneheight) {
             _this = this;
@@ -8,26 +9,73 @@ define(function() {
             zonemap = {};
             zonewidth = _zonewidth;
             zoneheight = _zoneheight;
+            _this.initColors();
+        },
+        initColors: function() {
+            var blue = _this.generateRCG(function(r) {
+                var c = Math.floor(r*101) + 120;
+                return [0,c-50,c];
+            });
+            var yellow = _this.generateRCG(function(r) {
+                var c = Math.floor((1-r)*21) + 180;
+                return [c,c-20,0];
+            });
+            var green = _this.generateRCG(function(r) {
+                return [80, Math.floor((1-r)*81) + 120, 20];
+            });
+            var brown = _this.generateRCG(function(r) {
+                var c = Math.floor(r*51) + 60;
+                return [c,Math.floor(c/3*2),0];
+            });
+            var white = _this.generateRCG(function(r) {
+                var c = Math.floor(r*51) + 200;
+                return [c-40,c-20,c];
+            });
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            rcg.push(blue());
+            //rcg.push(blue());
+            //rcg.push(yellow());
+            rcg.push(yellow());
+            rcg.push(green());
+            rcg.push(green());
+            rcg.push(green());
+            rcg.push(green());
+            rcg.push(green());
+            rcg.push(brown());
+            rcg.push(brown());
+            rcg.push(brown());
+            rcg.push(white());
+        },
+        generateRCG: function(f) {
+            return (function() {
+                var count = 0;
+                return function() {
+                    var index = count;
+                    count++;
+                    return function(r) {
+                         return f(r/count + index/count);
+                    };
+                };
+            })();
         },
         randomColor: function(x,y) {
-            var r = g.simplex.noise3D(x/g.simplex.d, y/g.simplex.d, g.simplex.s), c;
-            if (r < -.6) {
-                c = Math.floor((r+1) / .4 * 101) + 120;
-                return [0,c-50,c]; // blue
-            }
-            if (r < -.2) {
-                c = Math.floor((-.2-r) / .4 * 51) + 150;
-                return [c,c-20,0]; // yellow
-            }
-            if (r < .2) {
-                return [80, Math.floor((.2-r) / .4 * 81) + 120,20]; // green
-            }
-            if (r < .6) {
-                c = Math.floor((r-.2) / .4 * 51) + 60;
-                return [c,Math.floor(c/3*2),0]; // brown
-            }
-            c = Math.floor((r-.6) / .4 * 51) + 200;
-            return [c-40,c-20,c]; // white
+            var r = g.simplex.noise3D(x/g.simplex.d, y/g.simplex.d, g.simplex.s)*.5 +
+                    g.simplex.noise3D(x/g.simplex.d*2, y/g.simplex.d*2, g.simplex.s+64) *.25 +
+                    g.simplex.noise3D(x/g.simplex.d*4, y/g.simplex.d*4, g.simplex.s+128) *.125 +
+                    g.simplex.noise3D(x/g.simplex.d*8, y/g.simplex.d*8, g.simplex.s+256) *.0625;
+            
+            var d = g.simplex.noise3D(x/g.simplex.d/8, y/g.simplex.d/8, g.simplex.s+512);
+            r = Math.pow((r+1)/2, 1+d) * rcg.length;
+            var i = Math.floor(r);
+            return rcg[i](r-i);
         },
         assign: function(x,y) {
             if (zonemap[y] === undefined) {
@@ -38,8 +86,6 @@ define(function() {
                 zonemap[y][x] = false;
                 return true;
             }
-            //log.info(zonemap[y][x]);
-            //log.info([x,y]);
             return false;
         },
         initZone: function(x,y) {
