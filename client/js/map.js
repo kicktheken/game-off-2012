@@ -1,7 +1,5 @@
 define(function() {
     var _this, zonewidth, zoneheight, zonemap, map;
-
-    var rcg = [];
     return Class.extend({
         init: function(_zonewidth, _zoneheight) {
             _this = this;
@@ -9,73 +7,14 @@ define(function() {
             zonemap = {};
             zonewidth = _zonewidth;
             zoneheight = _zoneheight;
-            _this.initColors();
         },
-        initColors: function() {
-            var blue = _this.generateRCG(function(r) {
-                var c = Math.floor(r*101) + 120;
-                return [0,c-50,c];
-            });
-            var yellow = _this.generateRCG(function(r) {
-                var c = Math.floor((1-r)*21) + 180;
-                return [c,c-20,0];
-            });
-            var green = _this.generateRCG(function(r) {
-                return [80, Math.floor((1-r)*81) + 120, 20];
-            });
-            var brown = _this.generateRCG(function(r) {
-                var c = Math.floor(r*51) + 60;
-                return [c,Math.floor(c/3*2),0];
-            });
-            var white = _this.generateRCG(function(r) {
-                var c = Math.floor(r*51) + 200;
-                return [c-40,c-20,c];
-            });
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            //rcg.push(blue());
-            //rcg.push(yellow());
-            rcg.push(yellow());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(brown());
-            rcg.push(brown());
-            rcg.push(brown());
-            rcg.push(white());
-        },
-        generateRCG: function(f) {
-            return (function() {
-                var count = 0;
-                return function() {
-                    var index = count;
-                    count++;
-                    return function(r) {
-                         return f(r/count + index/count);
-                    };
-                };
-            })();
-        },
-        randomColor: function(x,y) {
+        tileGenerator: function(x,y) {
             var r = g.simplex.noise3D(x/g.simplex.d, y/g.simplex.d, g.simplex.s)*.5 +
                     g.simplex.noise3D(x/g.simplex.d*2, y/g.simplex.d*2, g.simplex.s+64) *.25 +
                     g.simplex.noise3D(x/g.simplex.d*4, y/g.simplex.d*4, g.simplex.s+128) *.125 +
                     g.simplex.noise3D(x/g.simplex.d*8, y/g.simplex.d*8, g.simplex.s+256) *.0625;
-            
             var d = g.simplex.noise3D(x/g.simplex.d/8, y/g.simplex.d/8, g.simplex.s+512);
-            r = Math.pow((r+1)/2, 1+d) * rcg.length;
-            var i = Math.floor(r);
-            return rcg[i](r-i);
+            return Math.pow((r+1)/2, 1+d);
         },
         assign: function(x,y) {
             if (zonemap[y] === undefined) {
@@ -104,7 +43,7 @@ define(function() {
                         map[row] = {};
                     }
                     if (map[row][col] === undefined) {
-                        map[row][col] = _this.randomColor(col,row);
+                        map[row][col] = _this.tileGenerator(col,row);
                     }
                 }
             }
@@ -133,7 +72,7 @@ define(function() {
                         }
                         col = Math.floor((2*x-1)*zonewidth);
                     }
-                    var ret = [col,row].concat(map[row][col]);
+                    var ret = [col,row,map[row][col]];
                     col++;
                     return ret;
                 };
