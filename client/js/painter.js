@@ -6,8 +6,9 @@ define(function() {
         init: function(_map, _mx, _my, _width, _height, _twidth, _theight) {
             _this = this;
             map = _map;
-            width = _width;
-            height = _height;
+            // width and height increased to fix seaming problems
+            width = _width + 1;
+            height = _height + 1;
             mx = _mx;
             my = _my;
             twidth = _twidth;
@@ -65,9 +66,9 @@ define(function() {
         drawTile: function(x,y,r) {
             var xpos, ypos, c, i;
 
-            // initialize drawn coords
-            xpos = x*twidth/2 - canvas.width*mx;
-            ypos = y*theight/2 - canvas.height*my;
+            // initialize drawn coords (compensated to fix seaming problems)
+            xpos = x*twidth/2 - (width-1)*mx;
+            ypos = y*theight/2 - (height-1)*my;
 
             // set color
             r *= rcg.length;
