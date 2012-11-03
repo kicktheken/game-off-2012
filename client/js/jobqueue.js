@@ -2,15 +2,16 @@
  * A "job" is a function or a chain of functions that returns:
  *  true: if the job is done
  *  false: if the job is not done
- *  null: delay execution and yield to next job
+ *  null: delay execution for this cycle and yield to next job
  */
 define(function() {
-    var _this, queues, count, limit;
-    return Class.extend({
+    var _this, queues, count, limit, deferred;
+    var JobQueue = Class.extend({
         init: function(_limit) {
             _this = this;
             limit = _limit;
             queues = [[],[],[]];
+            deferred = [[],[],[]];
             count = 0;
         },
         push: function() {
@@ -66,6 +67,7 @@ define(function() {
                     }
                 }
                 if (pri === queues.length) {
+                    requeueDeferred();
                     return 0;
                 }
 
@@ -73,8 +75,7 @@ define(function() {
                 var hasArgs = (job.length > 1 && job[1] instanceof Array);
                 var ret = job[0].apply(null,(hasArgs) ? job[1] : []);
                 if (ret === null) {
-                    curqueue.shift();
-                    curqueue.push(job);
+                    deferred[pri].push(curqueue.shift());
                 } else if (ret !== false) {
                     job.shift();
                     if (hasArgs) job.shift();
@@ -92,7 +93,19 @@ define(function() {
                     }
                 }
             } while ((elapsed = (g.ts()-ts)) <= 10);
+            requeueDeferred();
             return elapsed;
         }
     });
+
+    function requeueDeferred() {
+        for (var pri=0; pri<deferred.length; pri++) {
+            var queue = deferred[pri];
+            while (queue.length > 0) {
+                queues[pri].push(queue.shift());
+            }
+        }
+    }
+
+    return JobQueue;
 });

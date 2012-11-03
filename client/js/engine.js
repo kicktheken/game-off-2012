@@ -2,10 +2,10 @@
 define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
     var _this;
     var $canvas, canvas, context, painters = [], bwidth, bheight,
-        twidth, theight, map, radius, save, saves = [], center, mousedown;
-    var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, initted = false;
+        twidth, theight, map, radius, save, saves = [], center, mousedown, vs, scrollevents = [];
+    var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
-    return Class.extend({
+    var Engine = Class.extend({
         init: function($display) {
             _this = this;
             $canvas = $display;
@@ -27,27 +27,13 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             //jobqueue.push(_this.load);
             radius = 2;
             mousedown = false;
+            vs = [];
             center = {x:0, y:0};
+            deceleration = (g.MOBILE) ? 1 : 2;
+            maxv = 30;
             //log.setCallback(_this.showStatus);
 
-            // enable inertia scrolling on non IE browsers
-            if (!g.IE) {
-                var moved = function (settings) {
-                    _this.scroll(settings.scrollLeft, settings.scrollTop);
-                };
-                var requestAnimFrame = function(job) {
-                    jobqueue.push(0, job);
-                };
-                $canvas.kinetic({
-                    moved: moved,
-                    requestAnimFrame: requestAnimFrame,
-                    showCursor: false,
-                    triggerHardware: true
-                });
-            }
-
             _this.resize();
-
 
             //worker = new Worker("js/worker.js");
             //worker.onmessage = _this.workerResponse;
@@ -99,26 +85,53 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
         // }}}
         // {{{ cursor
         cursorstart: function(x,y) {
-            mousedown = {x:x,y:y};
-            /*if (y*g.SCALE > canvas.height - g.BARSIZE) {
-                log.info("trigger save...");
-                saves.push(_this.saveTo());
-                var sum = 0;
-                _.each(saves, function(s) { sum += s.length });
-                log.info("total length: "+sum);
-            }*/
-            //log.info("click: "+x+"x"+y, _this.showStatus);
+            mousedown = {x:x,y:y,ts:g.ts()};
+            scrollevents = [];
         },
         cursorend: function() {
             mousedown = false;
+            var dx, dy, dt, v;
+            if (vs.length === 0) {
+                return;
+            } else if (vs.length === 1) {
+                dx = vs[0].dx;
+                dy = vs[0].dy;
+                dt = vs[0].dt;
+            } else { // look at the last two to resolve the (backwards glitch)
+                var a = anglediff(vs[0].dx,vs[0].dy,vs[1].dx,vs[1].dy),
+                    i = (Math.abs(a) > Math.PI/2) ? 1 : 0;
+                dx = vs[i].dx;
+                dy = vs[i].dy;
+                dt = vs[i].dt;
+            }
+            v = Math.sqrt(dx*dx+dy*dy) / dt * 1000 / 60;
+            if (v > maxv) v = maxv;
+            log.info(v);
+            for (var k = v; k > 0; k -= deceleration) {
+                scrollevents.push([k/v * dx, k/v * dy]);
+            }
+            jobqueue.push(0, function() {
+                if (scrollevents.length === 0) {
+                    return true;
+                }
+                var se = scrollevents.shift();
+                _this.scroll(se[0],se[1]);
+                return (scrollevents.length === 0) ? true : null;
+            });
+            vs = [];
         },
         cursormove: function(x,y) {
             if (mousedown) {
-                var sx = mousedown.x - x,
-                    sy = mousedown.y - y;
-                    mousedown.x = x;
-                    mousedown.y = y;
-                _this.scroll(sx, sy);
+                var dx = mousedown.x - x,
+                    dy = mousedown.y - y,
+                    ts = g.ts();
+                if (ts > mousedown.ts) {
+                    vs.unshift({dx:dx,dy:dy,dt:ts-mousedown.ts});
+                }
+                mousedown.x = x;
+                mousedown.y = y;
+                mousedown.ts = ts;
+                _this.scroll(dx, dy);
             }
         },
         // }}}
@@ -242,4 +255,20 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             }
         }
     });
+
+    // returns 0 <= x < 2*PI
+    function cart2rad(x,y) {
+        if (x === 0) {
+            return (y === 0) ? 0 : (y > 0) ? Math.PI/2 : 3*Math.PI/2;
+        }
+        return (x > 0) ? Math.atan(y/x) : Math.PI+Math.atan(y/x);
+    }
+
+    // return -PI <= x < PI
+    function anglediff(x1,y1,x2,y2) {
+        var rad = cart2rad(x2,y2) - cart2rad(x1,y1);
+        return (rad < -Math.PI) ? rad+Math.PI : (rad >= Math.PI) ? rad-Math.PI : rad;
+    }
+
+    return Engine;
 });

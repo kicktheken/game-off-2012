@@ -10,7 +10,7 @@ function() {
     if (g.IE) {
         require(["lib/typedarray", "main"]);
     } else {
-        require(["lib/jquery.kinetic", "main"]);
+        require(["main"]);
     }
 });
 

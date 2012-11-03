@@ -13,7 +13,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     //music.play = function() {};
 
 
-    g.ts = function() { return new Date().getTime(); }
+    g.ts = function() { return new Date().getTime(); };
     g.INITTIME = g.ts();
     var android = /Android\s[3-9]\./i.test(navigator.userAgent), // is Android 3.0+
         apple = /Mac OS.+Version\/[0-9]\.[0-9]/i.test(navigator.userAgent); // is Mobile Safari
@@ -24,7 +24,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     g.simplex = new SimplexNoise(rng.fract53);
     Math.random = rng.fract53;
     g.simplex.d = 32;
-    g.simplex.s = Math.random();
+    g.simplex.s = Math.random() * g.simplex.d;
 
     var initApp = function() {
         //log.info("document ready");
@@ -33,12 +33,9 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
         engine = new Engine($canvas);
         //$canvas = engine.getCanvas();
 
-        $(window).resize(function() {
-            engine.resize();
-        });
+        $(window).resize(engine.resize);
 
-        // old click code
-        if (false && g.MOBILE) {
+        if (g.MOBILE) {
             $canvas.bind('touchstart', function(e) {
                 e = e.originalEvent.touches[0];
                 engine.cursorstart(e.pageX, e.pageY);
@@ -54,9 +51,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
                 engine.cursormove(orig.pageX, orig.pageY);
             });
 
-        }
-        // use normal scroll on IE
-        if (g.IE) {
+        } else {
             document.addEventListener('mousedown', function(e) {
                 engine.cursorstart(e.clientX, e.clientY);
             });
