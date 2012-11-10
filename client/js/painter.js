@@ -1,7 +1,7 @@
-define(function() {
+define(["lsystems"],function(LSystems) {
     var _this;
     var canvas, context, twidth, theight, width, height, maxx, maxy, pause;
-    var mx, my, map, iterator, rcg = [];
+    var mx, my, map, iterator, rcg = [], lsystem;
     var Painter = Class.extend({
         init: function(_map, _mx, _my, _width, _height, _twidth, _theight) {
             _this = this;
@@ -16,6 +16,8 @@ define(function() {
             maxx = Math.ceil(width/twidth);
             maxy = Math.ceil(height/theight);
             pause = true;
+            lsystem = new LSystems();
+            lsystem.draw();
             _this.initCanvas();
         },
         initCanvas: function() {
@@ -55,6 +57,7 @@ define(function() {
                 if (!data) {
                     pause = true;
                     iterator = null;
+                    context.drawImage(lsystem.getCanvas(),0,0);
                     return true;
                 }
                 if ((data[0]+data[1]) % 2 === 0) {
