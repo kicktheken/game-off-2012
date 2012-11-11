@@ -1,12 +1,11 @@
 // vim: set et ts=4 sw=4 fdm=marker:
 define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
-    var _this;
-    var $canvas, canvas, context, painters = [], bwidth, bheight,
-        twidth, theight, map, radius, save, saves = [], center, mousedown, vs, scrollevents = [];
-    var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
-
-    var Engine = Class.extend({
-        init: function($display) {
+    var Engine = (function() {
+        var _this;
+        var $canvas, canvas, context, painters = [], bwidth, bheight,
+            twidth, theight, map, radius, save, saves = [], center, mousedown, vs, scrollevents = [];
+        var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
+        function Engine($display) {
             _this = this;
             $canvas = $display;
             bwidth = parseInt($canvas.css("width"));
@@ -40,9 +39,9 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             //var imgdata = context.getImageData(0,0,50,50);
             //worker.postMessage({action:"init",indexes:1,imgdata:imgdata});
 
-        },
+        }
         // return [startx,starty,endx,endy] in map coordinates
-        getZoneCoords: function() {
+        Engine.prototype.getZoneCoords = function() {
             var ret = [], x = Math.floor(center.x/bwidth + .5), y = Math.floor(center.y/bheight + .5),
                 modx = Math.round(center.x + bwidth/2)%bwidth, mody = Math.round(center.y +bheight/2)%bheight;
             if (modx < 0) modx = bwidth + modx;
@@ -52,14 +51,14 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             ret.push(x+Math.ceil((canvas.width/2 - bwidth + modx)/bwidth));
             ret.push(y+Math.ceil((canvas.height/2 - bheight + mody)/bheight));
             return ret;
-        },
+        };
         // {{{ resize
-        resize: function() {
+        Engine.prototype.resize = function() {
             //clearTimeout(resizeTimeout);
             //resizeTimeout = setTimeout(_this._resize, 100);
             jobqueue.push(0, _this._resize);
-        },
-        _resize: function() {
+        };
+        Engine.prototype._resize = function() {
             $canvas.height($(window).height() + g.BARSIZE);
 
             var width = $canvas.width() * g.SCALE,
@@ -81,14 +80,14 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             //_this.load();
             return true;
             //_this.generateTilesInCircle(radius);
-        },
+        };
         // }}}
         // {{{ cursor
-        cursorstart: function(x,y) {
+        Engine.prototype.cursorstart = function(x,y) {
             mousedown = {x:x,y:y,ts:g.ts()};
             scrollevents = [];
-        },
-        cursorend: function() {
+        };
+        Engine.prototype.cursorend = function() {
             mousedown = false;
             var dx, dy, dt, v;
             if (vs.length === 0) {
@@ -119,8 +118,8 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                 return (scrollevents.length === 0) ? true : null;
             });
             vs = [];
-        },
-        cursormove: function(x,y) {
+        };
+        Engine.prototype.cursormove = function(x,y) {
             if (mousedown) {
                 var dx = mousedown.x - x,
                     dy = mousedown.y - y,
@@ -133,24 +132,13 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                 mousedown.ts = ts;
                 _this.scroll(dx, dy);
             }
-        },
+        };
         // }}}
-        translate: function(x,y) {
+        Engine.prototype.translate = function(x,y) {
             context.translate(x,y);
             log.info('translate '+x+' '+y);
-        },
-        save: function() {
-            save = bcanvas[0].toDataURL();
-            var m = (save.length < 10) ? save : save.length;
-            log.info("save length: "+m+" "+bcanvas[0].width+"x"+bcanvas[0].height);
-        },
-        saveTo: function() {
-            var ret = bcanvas[0].toDataURL();
-            var m = (ret.length < 10) ? ret : ret.length;
-            log.info("save length: "+m+" "+bcanvas[0].width+"x"+bcanvas[0].height);
-            return ret;
-        },
-        loadZone: function(mx,my) {
+        };
+        Engine.prototype.loadZone = function(mx,my) {
             var zone = map.loadZone(mx,my);
             if (!zone) {
                 return null;
@@ -158,8 +146,8 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             var x = mx*bwidth - Math.round(center.x) + (canvas.width-bwidth)/2,
                 y = my*bheight - Math.round(center.y) + (canvas.height-bheight)/2;
             _this.drawImage(x,y,zone);
-        },
-        load: function() {
+        };
+        Engine.prototype.load = function() {
             var zoneCoords = _this.getZoneCoords();
             //log.info(zoneCoords, true);
             context.fillStyle = 'black';
@@ -190,23 +178,18 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             //context.fillStyle = 'black';
             //context.fillRect(0, 0, canvas.width, canvas.height);
             return true;
-        },
-        drawImage: function(x,y,img) {
+        };
+        Engine.prototype.drawImage = function(x,y,img) {
             context.drawImage(img, x, y);
             //log.info("load at "+x+" "+y);
-        },
-        erase: function() {
-            context.fillStyle = 'white';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            log.info('erase');
-        },
-        scroll: function(x,y) {
+        };
+        Engine.prototype.scroll = function(x,y) {
             center.x += x;
             center.y += y;
             //jobqueue.push(0, _this.load);
             _this.load();
-        },
-        generateTilesInCircle: function(radius) {
+        };
+        Engine.prototype.generateTilesInCircle = function(radius) {
             var max = Math.ceil(radius*2);
             for (var y = -max; y <= max; y++) {
                 for (var x = -max+(y%2); x <= max; x+=2) {
@@ -217,24 +200,24 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                     }
                 }
             }
-        },
-        showStatus: function (msg) {
+        };
+        Engine.prototype.showStatus = function (msg) {
             var width = canvas.width, height = canvas.height;
             context.fillStyle = 'white';
             context.fillRect(10, height - 40, width - 20, 30);
             context.fillStyle = 'black';
             context.font = 'bold 12pt Arial';
             context.fillText(msg, 20, height - 20);
-        },
-        workerResponse: function(e) {
+        };
+        Engine.prototype.workerResponse = function(e) {
             if (e.data.imgdata && center) {
                 context.putImageData(e.data.imgdata, 0, 0);
             } else {
                 console.log(e.data);
             }
             //console.log(e.data);
-        },
-        run: function() {
+        };
+        Engine.prototype.run = function() {
             ticks++;
             if (!initted && jobqueue.count() === 0) {
                 log.info((g.ts() - g.INITTIME) + "ms startup");
@@ -253,8 +236,9 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                 //log.info(canvas.width);
                 elapsed = 0;
             }
-        }
-    });
+        };
+        return Engine;
+    })();
 
     // returns 0 <= x < 2*PI
     function cart2rad(x,y) {

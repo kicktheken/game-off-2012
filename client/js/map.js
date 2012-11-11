@@ -1,22 +1,22 @@
 define(function() {
-    var _this, zonewidth, zoneheight, zonemap, map;
-    return Class.extend({
-        init: function(_zonewidth, _zoneheight) {
+    return (function() {
+        var _this, zonewidth, zoneheight, zonemap, map;
+        function Map(_zonewidth, _zoneheight) {
             _this = this;
             map = {};
             zonemap = {};
             zonewidth = _zonewidth;
             zoneheight = _zoneheight;
-        },
-        tileGenerator: function(x,y) {
+        }
+        Map.prototype.tileGenerator = function(x,y) {
             var r = g.simplex.noise3D(x/g.simplex.d, y/g.simplex.d, g.simplex.s)*.5 +
                     g.simplex.noise3D(x/g.simplex.d*2, y/g.simplex.d*2, g.simplex.s+64) *.25 +
                     g.simplex.noise3D(x/g.simplex.d*4, y/g.simplex.d*4, g.simplex.s+128) *.125 +
                     g.simplex.noise3D(x/g.simplex.d*8, y/g.simplex.d*8, g.simplex.s+256) *.0625;
             var d = g.simplex.noise3D(x/g.simplex.d/8, y/g.simplex.d/8, g.simplex.s+512);
             return Math.pow((r+1)/2, 1+d);
-        },
-        assign: function(x,y) {
+        };
+        Map.prototype.assign = function(x,y) {
             if (zonemap[y] === undefined) {
                 zonemap[y] = {};
                 zonemap[y][x] = false;
@@ -26,8 +26,8 @@ define(function() {
                 return true;
             }
             return false;
-        },
-        initZone: function(x,y) {
+        };
+        Map.prototype.initZone = function(x,y) {
             if (zonemap[y] !== undefined) {
                 if (zonemap[y][x] !== undefined && zonemap[y][x] === true) {
                     return true;
@@ -50,8 +50,8 @@ define(function() {
             //log.info(map);
             zonemap[y][x] = true;
             return true;
-        },
-        getZoneIterator: function(x,y) {
+        };
+        Map.prototype.getZoneIterator = function(x,y) {
             if (zonemap[y] === undefined || zonemap[y][x] === undefined) {
                 return false;
             }
@@ -78,17 +78,18 @@ define(function() {
                 };
             })();
         },
-        saveZone: function(x,y,imgsrc) {
+        Map.prototype.saveZone = function(x,y,imgsrc) {
             if (zonemap[y] === undefined || zonemap[y][x] === undefined) {
                 return true; //XXX weird
             }
             zonemap[y][x] = imgsrc;
-        },
-        loadZone: function(x,y) {
+        };
+        Map.prototype.loadZone = function(x,y) {
             if (zonemap[y] === undefined || zonemap[y][x] === undefined || typeof zonemap[y][x] === "boolean") {
                 return false;
             }
             return zonemap[y][x];
-        }
-    });
+        };
+        return Map;
+    })();
 });

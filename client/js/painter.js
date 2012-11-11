@@ -1,9 +1,10 @@
 define(["lsystems"],function(LSystems) {
-    var _this;
-    var canvas, context, twidth, theight, width, height, maxx, maxy, pause;
-    var mx, my, map, iterator, rcg = [], lsystem;
-    var Painter = Class.extend({
-        init: function(_map, _mx, _my, _width, _height, _twidth, _theight) {
+    var rcg = [];
+    var Painter = (function () {
+        var _this;
+        var canvas, context, twidth, theight, width, height, maxx, maxy, pause;
+        var mx, my, map, iterator, lsystem;
+        function Painter(_map, _mx, _my, _width, _height, _twidth, _theight) {
             _this = this;
             map = _map;
             // width and height increased to fix seaming problems
@@ -19,15 +20,15 @@ define(["lsystems"],function(LSystems) {
             lsystem = new LSystems();
             lsystem.draw();
             _this.initCanvas();
-        },
-        initCanvas: function() {
+        }
+        Painter.prototype.initCanvas = function() {
             canvas = document.createElement("canvas");
             canvas.width = width;
             canvas.height = height;
             document.body.appendChild(canvas);
             context = canvas.getContext('2d');
-        },
-        assign: function(_mx, _my) {
+        };
+        Painter.prototype.assign = function(_mx, _my) {
             if (pause) {
                 mx = _mx;
                 my = _my;
@@ -38,14 +39,14 @@ define(["lsystems"],function(LSystems) {
                 return true;
             }
             return false;
-        },
-        getSrc: function() {
+        };
+        Painter.prototype.getSrc = function() {
             return canvas.toDataURL();
-        },
-        save: function() {
+        };
+        Painter.prototype.save = function() {
             return map.saveZone(mx,my,canvas);
-        },
-        generateTilesInScreen: function(step) {
+        };
+        Painter.prototype.generateTilesInScreen = function(step) {
             if (pause) {
                 return false;
             }
@@ -64,8 +65,8 @@ define(["lsystems"],function(LSystems) {
                 }
             }
             return false;
-        },
-        drawTile: function(x,y,r) {
+        };
+        Painter.prototype.drawTile = function(x,y,r) {
             var xpos, ypos, c, i;
 
             // initialize drawn coords (compensated to fix seaming problems)
@@ -92,9 +93,10 @@ define(["lsystems"],function(LSystems) {
             if (r/rcg.length > .8) {
                 context.drawImage(lsystem.getCanvas(),xpos-50,ypos-100);
             }
-        },
-        isPaused:function() { return pause; }
-    });
+        };
+        Painter.prototype.isPaused = function() { return pause; };
+        return Painter;
+    })();
 
     // initialize color generators
     (function initColor(generateRCG) {

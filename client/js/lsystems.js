@@ -3,31 +3,31 @@
  * of algorithmically drawing trees
  */
 define(function() {
-    var _this;
-    var canvas, context, width, height, types, drawLine;
-    var State = function(x,y,d,angle,i) {
-        this.x = x;
-        this.y = y;
-        this.d = d;
-        this.angle = angle;
-        this.i = i;
-    };
-    var drawLine = function(s, color) {
-        var rad = (s.angle - 90) * Math.PI / 180,
-            toX = s.x + s.d * Math.cos(rad),
-            toY = s.y + s.d * Math.sin(rad);
-        context.lineWidth = s.i;
-        context.strokeStyle = color;
-        context.beginPath();
-        context.moveTo(s.x, s.y);
-        context.lineTo(toX, toY);
-        context.closePath();
-        context.stroke();
-        s.x = toX;
-        s.y = toY;
-    };
-    return Class.extend({
-        init: function() {
+    return (function () {
+        var _this;
+        var canvas, context, width, height, types, drawLine;
+        var State = function(x,y,d,angle,i) {
+            this.x = x;
+            this.y = y;
+            this.d = d;
+            this.angle = angle;
+            this.i = i;
+        };
+        var drawLine = function(s, color) {
+            var rad = (s.angle - 90) * Math.PI / 180,
+                toX = s.x + s.d * Math.cos(rad),
+                toY = s.y + s.d * Math.sin(rad);
+            context.lineWidth = s.i;
+            context.strokeStyle = color;
+            context.beginPath();
+            context.moveTo(s.x, s.y);
+            context.lineTo(toX, toY);
+            context.closePath();
+            context.stroke();
+            s.x = toX;
+            s.y = toY;
+        };
+        function LSystems() {
             _this = this;
             width = 100;
             height = 100;
@@ -37,8 +37,8 @@ define(function() {
             document.body.appendChild(canvas);
             context = canvas.getContext('2d');
             _this.initTypes();
-        },
-        initTypes: function() {
+        }
+        LSystems.prototype.initTypes = function() {
             types = [];
             // oak
             var type = { rules:[], iterations:5, distance:3, angle:20 };
@@ -87,9 +87,9 @@ define(function() {
                 rule: "0"
             });
             types.push(type);
-        },
-        getCanvas: function() { return canvas; },
-        draw: function(type) {
+        };
+        LSystems.prototype.getCanvas = function() { return canvas; };
+        LSystems.prototype.draw = function(type) {
             context.fillStyle = 'rgba(0,0,0,0)';
             context.fillRect(0, 0, width, height);
             context.lineCap = 'round';
@@ -126,7 +126,8 @@ define(function() {
             })(axiom, type.iterations);
             //context.restore();
             //console.log(new Date().getTime() - ts);
-        }
-    });
+        };
+        return LSystems;
+    })();
 });
 

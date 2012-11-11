@@ -5,16 +5,16 @@
  *  null: delay execution for this cycle and yield to next job
  */
 define(function() {
-    var _this, queues, count, limit, deferred;
-    var JobQueue = Class.extend({
-        init: function(_limit) {
+    var JobQueue = (function() {
+        var _this, queues, count, limit, deferred;
+        function JobQueue(_limit) {
             _this = this;
             limit = _limit;
             queues = [[],[],[]];
             deferred = [[],[],[]];
             count = 0;
-        },
-        push: function() {
+        }
+        JobQueue.prototype.push = function() {
             if (count >= limit) {
                 throw "Job Queue limit ("+limit+") exceeded";
             }
@@ -37,8 +37,8 @@ define(function() {
             queues[pri].push(job);
             count++;
             return true;
-        },
-        blocker: function() {
+        };
+        JobQueue.prototype.blocker = function() {
             if (arguments.length < 1 || typeof arguments[0] !== "function") {
                 return false;
             }
@@ -55,9 +55,9 @@ define(function() {
             count++;
             return true;
 
-        },
-        count: function() { return count; },
-        work: function() {
+        };
+        JobQueue.prototype.count = function() { return count; };
+        JobQueue.prototype.work = function() {
             var pri, curqueue, ts = g.ts(), elapsed;
             do {
                 for (pri=0; pri<queues.length; pri++) {
@@ -67,7 +67,7 @@ define(function() {
                     }
                 }
                 if (pri === queues.length) {
-                    requeueDeferred();
+                    _this.requeueDeferred();
                     return 0;
                 }
 
@@ -93,19 +93,19 @@ define(function() {
                     }
                 }
             } while ((elapsed = (g.ts()-ts)) <= 10);
-            requeueDeferred();
+            _this.requeueDeferred();
             return elapsed;
-        }
-    });
-
-    function requeueDeferred() {
-        for (var pri=0; pri<deferred.length; pri++) {
-            var queue = deferred[pri];
-            while (queue.length > 0) {
-                queues[pri].push(queue.shift());
+        };
+        JobQueue.prototype.requeueDeferred = function() {
+            for (var pri=0; pri<deferred.length; pri++) {
+                var queue = deferred[pri];
+                while (queue.length > 0) {
+                    queues[pri].push(queue.shift());
+                }
             }
-        }
-    }
+        };
+        return JobQueue;
+    })();
 
     return JobQueue;
 });
