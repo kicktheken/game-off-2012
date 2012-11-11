@@ -2,7 +2,7 @@
 define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
     var _this;
     var $canvas, canvas, context, painters = [], bwidth, bheight,
-        twidth, theight, map, radius, save, saves = [], center, mousedown, vs, scrollevents = [];
+        map, radius, save, saves = [], center, mousedown, vs, scrollevents = [];
     var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
@@ -19,11 +19,11 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             $canvas.css("display","block");
             canvas = $canvas.get(0);
             context = canvas.getContext('2d');
-            twidth = 60;
-            theight = twidth/2;
-            map = new Map(bwidth/twidth, bheight/theight);
+            g.twidth = 60;
+            g.theight = g.twidth/2;
+            map = new Map(bwidth/g.twidth, bheight/g.theight);
             for (var i=0; i<1; i++) {
-                painters.push(new Painter(map, 0, 0, bwidth, bheight, twidth, theight));
+                painters.push(new Painter(map, 0, 0, bwidth, bheight));
             }
             jobqueue = new JobQueue(1000);
 

@@ -68,19 +68,8 @@ define(function() {
                 if (ret === null) {
                     deferred[pri].push(curqueue.shift());
                 } else if (ret !== false) {
-                    job.slice(0,(hasArgs) ? 3 : 2);
-                    if (job.length > 2) {
-                        if (typeof job[2] === "function") {
-                            job.splice(2,0,[ret]);
-                        } else if (job[2] instanceof Array) {
-                            job[2].concat(ret);
-                        } else {
-                            throw "non Array non Function detected in jobqueue";
-                        }
-                    } else {
-                        curqueue.shift();
-                        count--;
-                    }
+                    curqueue.shift();
+                    count--;
                 }
             } while ((elapsed = (g.ts()-ts)) <= 10);
             requeueDeferred();
