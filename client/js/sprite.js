@@ -2,8 +2,8 @@ define(function() {
     return Class.extend({
         init: function() {
             this.canvas = document.createElement("canvas");
-            this.canvas.width = 100;
-            this.canvas.height = 100;
+            this.canvas.width = 100 * g.DRAWSCALE;
+            this.canvas.height = 100 * g.DRAWSCALE;
             document.body.appendChild(this.canvas);
             this.context = this.canvas.getContext('2d');
         },

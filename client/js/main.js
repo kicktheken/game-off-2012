@@ -17,7 +17,13 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     g.INITTIME = g.ts();
     var android = /Android\s[3-9]\./i.test(navigator.userAgent), // is Android 3.0+
         apple = /Mac OS.+Version\/[0-9]\.[0-9]/i.test(navigator.userAgent); // is Mobile Safari
-    g.SCALE = (g.MOBILE) ? 2 : 1;
+
+    $canvas = $("canvas");
+    ctx = $canvas.get(0).getContext('2d');
+
+    // reference from http://www.html5rocks.com/en/tutorials/canvas/hidpi/
+    g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / getDefault(ctx.webkitBackingStorePixelRatio, 1) : 1;
+    g.DRAWSCALE = (g.MOBILE) ? 1 : g.SCALE;
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
@@ -29,7 +35,6 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     var initApp = function() {
         //log.info("document ready");
 
-        $canvas = $("canvas");
         engine = new Engine($canvas);
         //$canvas = engine.getCanvas();
 
@@ -62,7 +67,23 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
             document.addEventListener('mousemove', function (e) {
                 engine.cursormove(e.clientX, e.clientY);
             });
-
+            if (/Mac OS/i.test(navigator.userAgent)) { // trackpad scrolling is win
+                var ffVersion = navigator.userAgent.match(/Firefox\/\d+/i);
+                if (ffVersion) {
+                    ffVersion = ffVersion[0].substring(ffVersion[0].indexOf('/')+1);
+                    if (ffVersion > 16) { // deltaX only works on FF 17.0+
+                        initMouseScroll();
+                        window.addWheelListener(document, function(e) {
+                            engine.scroll(e.deltaX,e.deltaY);
+                        });
+                    }
+                } else if (/webkit/i.test(navigator.userAgent)) {
+                    initMouseScroll();
+                    window.addWheelListener(document, function(e) {
+                        engine.scroll(e.deltaX*20,e.deltaY*20);
+                    });
+                }
+            }
         }
 
         // initialize audio

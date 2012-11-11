@@ -46,7 +46,6 @@ define(["lsystem"],function(LSystem) {
             this.context = this.canvas.getContext('2d');
         },
         assign: function(mx, my) {
-            //log.info([mx,my]);
             if (this.pause) {
                 this.mx = mx;
                 this.my = my;

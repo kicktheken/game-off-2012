@@ -19,7 +19,7 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             $canvas.css("display","block");
             canvas = $canvas.get(0);
             context = canvas.getContext('2d');
-            g.twidth = 60;
+            g.twidth = 60 * g.DRAWSCALE;
             g.theight = g.twidth/2;
             map = new Map(bwidth/g.twidth, bheight/g.theight);
             for (var i=0; i<1; i++) {
