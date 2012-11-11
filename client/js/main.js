@@ -70,7 +70,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
 
         // animation loop
         (function animloop() {
-            requestAnimFrame(animloop);
+            window.requestAnimationFrame(animloop);
             engine.run();
         })();
     }
