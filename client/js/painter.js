@@ -57,7 +57,6 @@ define(["lsystems"],function(LSystems) {
                 if (!data) {
                     pause = true;
                     iterator = null;
-                    context.drawImage(lsystem.getCanvas(),0,0);
                     return true;
                 }
                 if ((data[0]+data[1]) % 2 === 0) {
@@ -70,8 +69,8 @@ define(["lsystems"],function(LSystems) {
             var xpos, ypos, c, i;
 
             // initialize drawn coords (compensated to fix seaming problems)
-            xpos = x*twidth/2 - (width-1)*mx;
-            ypos = y*theight/2 - (height-1)*my;
+            xpos = x*twidth/2 - (width-1)*mx + width/2;
+            ypos = y*theight/2 - (height-1)*my + height/2;
 
             // set color
             r *= rcg.length;
@@ -81,14 +80,18 @@ define(["lsystems"],function(LSystems) {
 
             // draw on context
             context.beginPath();
-            context.moveTo(xpos + width/2, ypos + height/2 + theight/2);
-            context.lineTo(xpos + width/2 + twidth/2, ypos + height/2);
-            context.lineTo(xpos + width/2, ypos + height/2 - theight/2);
-            context.lineTo(xpos + width/2 - twidth/2, ypos + height/2);
+            context.moveTo(xpos, ypos + theight/2);
+            context.lineTo(xpos + twidth/2, ypos);
+            context.lineTo(xpos, ypos - theight/2);
+            context.lineTo(xpos - twidth/2, ypos);
             context.closePath();
             context.stroke();
             context.fill();
 
+            // draw tree
+            if (r/rcg.length > .8) {
+                context.drawImage(lsystem.getCanvas(),xpos-50,ypos-100);
+            }
         },
         isPaused:function() { return pause; }
     });
