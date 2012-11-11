@@ -24,6 +24,10 @@ Function.prototype.bind = function (bind) {
     };
 };
 
+var apply = function(instance, method) {
+    return instance[method].apply(instance, Array.prototype.slice.call(arguments, 2));
+};
+
 var isInt = function(n) {
     return (n % 1) === 0;
 };

@@ -7,6 +7,9 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
 
     var Engine = Class.extend({
         init: function($display) {
+            if (typeof _this !== 'undefined') {
+                throw "Engine is a singleton and cannot be initialized more than once";
+            }
             _this = this;
             $canvas = $display;
             bwidth = parseInt($canvas.css("width"));
@@ -173,13 +176,13 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                             y = my*bheight - Math.round(center.y) + (canvas.height-bheight)/2;
                         //log.info(mx+","+my,true);
                         _this.drawImage(x,y,zone);
-                    } else if (painters[0].isPaused()) {
+                    } else if (apply(painters[0], 'isPaused')) {
                         //log.info("assign: "+mx+","+my,true);
                         if (map.assign(mx,my)) {
-                            jobqueue.push(1, painters[0].assign, [mx,my]);
+                            jobqueue.push(1, painters[0], 'assign', [mx,my]);
                             jobqueue.push(1, map.initZone, [mx,my]);
-                            jobqueue.push(1, painters[0].generateTilesInScreen, 1000);
-                            jobqueue.push(1, painters[0].save);
+                            jobqueue.push(1, painters[0], 'generateTilesInScreen', 1000);
+                            jobqueue.push(1, painters[0], 'save');
                             jobqueue.push(1, _this.loadZone, [mx,my]);
                         }
                     } else {
@@ -205,18 +208,6 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             center.y += y;
             //jobqueue.push(0, _this.load);
             _this.load();
-        },
-        generateTilesInCircle: function(radius) {
-            var max = Math.ceil(radius*2);
-            for (var y = -max; y <= max; y++) {
-                for (var x = -max+(y%2); x <= max; x+=2) {
-                    var dist = Math.round(Math.sqrt(x*x+y*y));
-                    if (radius+1 >= dist) {
-                        var green = Math.floor((Math.random()*101)-50);
-                        _this.drawTile(x,y,80,green+200,20);
-                    }
-                }
-            }
         },
         showStatus: function (msg) {
             var width = canvas.width, height = canvas.height;

@@ -1,66 +1,62 @@
 define(["lsystems"],function(LSystems) {
-    var _this;
-    var canvas, context, twidth, theight, width, height, maxx, maxy, pause;
-    var mx, my, map, iterator, rcg = [], lsystem;
+    var rcg = [], lsystem;
     var Painter = Class.extend({
-        init: function(_map, _mx, _my, _width, _height, _twidth, _theight) {
-            _this = this;
-            map = _map;
+        init: function(map, mx, my, width, height, twidth, theight) {
+            this.map = map;
             // width and height increased to fix seaming problems
-            width = _width + 1;
-            height = _height + 1;
-            mx = _mx;
-            my = _my;
-            twidth = _twidth;
-            theight = _theight;
-            maxx = Math.ceil(width/twidth);
-            maxy = Math.ceil(height/theight);
-            pause = true;
-            lsystem = new LSystems();
-            lsystem.draw();
-            _this.initCanvas();
+            this.width = width + 1;
+            this.height = height + 1;
+            this.mx = mx;
+            this.my = my;
+            this.twidth = twidth;
+            this.theight = theight;
+            this.maxx = Math.ceil(width/twidth);
+            this.maxy = Math.ceil(height/theight);
+            this.pause = true;
+            if (typeof lsystem === 'undefined') {
+                lsystem = new LSystems();
+                lsystem.draw();
+            }
+            this.initCanvas();
         },
         initCanvas: function() {
-            canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-            document.body.appendChild(canvas);
-            context = canvas.getContext('2d');
+            this.canvas = document.createElement("canvas");
+            this.canvas.width = this.width;
+            this.canvas.height = this.height;
+            document.body.appendChild(this.canvas);
+            this.context = this.canvas.getContext('2d');
         },
-        assign: function(_mx, _my) {
-            if (pause) {
-                mx = _mx;
-                my = _my;
-                pause = false;
-                _this.initCanvas();
-                context.fillStyle = 'white';
-                context.fillRect(0,0,width,height);
+        assign: function(mx, my) {
+            if (this.pause) {
+                this.mx = mx;
+                this.my = my;
+                this.pause = false;
+                this.initCanvas();
+                this.context.fillStyle = 'white';
+                this.context.fillRect(0,0,this.width,this.height);
                 return true;
             }
             return false;
         },
-        getSrc: function() {
-            return canvas.toDataURL();
-        },
         save: function() {
-            return map.saveZone(mx,my,canvas);
+            return this.map.saveZone(this.mx,this.my,this.canvas);
         },
         generateTilesInScreen: function(step) {
-            if (pause) {
+            if (this.pause) {
                 return false;
             }
-            if (!iterator) {
-                iterator = map.getZoneIterator(mx,my);
+            if (!this.iterator) {
+                this.iterator = this.map.getZoneIterator(this.mx,this.my);
             }
             for (var i=0; i<step; i++) {
-                var data = iterator();
+                var data = this.iterator();
                 if (!data) {
-                    pause = true;
-                    iterator = null;
+                    this.pause = true;
+                    this.iterator = null;
                     return true;
                 }
                 if ((data[0]+data[1]) % 2 === 0) {
-                    _this.drawTile.apply(null, data);
+                    this.drawTile.apply(this, data);
                 }
             }
             return false;
@@ -69,31 +65,31 @@ define(["lsystems"],function(LSystems) {
             var xpos, ypos, c, i;
 
             // initialize drawn coords (compensated to fix seaming problems)
-            xpos = x*twidth/2 - (width-1)*mx + width/2;
-            ypos = y*theight/2 - (height-1)*my + height/2;
+            xpos = x*this.twidth/2 - (this.width-1)*this.mx + this.width/2;
+            ypos = y*this.theight/2 - (this.height-1)*this.my + this.height/2;
 
             // set color
             r *= rcg.length;
             i = Math.floor(r);
             c = rcg[i](r-i);
-            context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
+            this.context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
 
             // draw on context
-            context.beginPath();
-            context.moveTo(xpos, ypos + theight/2);
-            context.lineTo(xpos + twidth/2, ypos);
-            context.lineTo(xpos, ypos - theight/2);
-            context.lineTo(xpos - twidth/2, ypos);
-            context.closePath();
-            context.stroke();
-            context.fill();
+            this.context.beginPath();
+            this.context.moveTo(xpos, ypos + this.theight/2);
+            this.context.lineTo(xpos + this.twidth/2, ypos);
+            this.context.lineTo(xpos, ypos - this.theight/2);
+            this.context.lineTo(xpos - this.twidth/2, ypos);
+            this.context.closePath();
+            this.context.stroke();
+            this.context.fill();
 
             // draw tree
             if (r/rcg.length > .8) {
-                context.drawImage(lsystem.getCanvas(),xpos-50,ypos-100);
+                this.context.drawImage(lsystem.getCanvas(),xpos-50,ypos-100);
             }
         },
-        isPaused:function() { return pause; }
+        isPaused:function() { return this.pause; }
     });
 
     // initialize color generators

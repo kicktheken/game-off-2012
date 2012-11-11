@@ -2,6 +2,9 @@ define(function() {
     var _this, zonewidth, zoneheight, zonemap, map;
     return Class.extend({
         init: function(_zonewidth, _zoneheight) {
+            if (typeof _this !== 'undefined') {
+                throw "Map is a singleton and cannot be initialized more than once";
+            }
             _this = this;
             map = {};
             zonemap = {};

@@ -8,6 +8,9 @@ define(function() {
     var _this, queues, count, limit, deferred;
     var JobQueue = Class.extend({
         init: function(_limit) {
+            if (typeof _this !== 'undefined') {
+                throw "JobQueue is a singleton and cannot be initialized more than once";
+            }
             _this = this;
             limit = _limit;
             queues = [[],[],[]];
@@ -19,14 +22,20 @@ define(function() {
                 throw "Job Queue limit ("+limit+") exceeded";
             }
             // TODO shove out low priority if limit reached
-            if (arguments.length < 2 || arguments[0] < 0 ||
-                arguments[0] >= queues.length || typeof arguments[1] !== "function")
-            {
+            if (arguments.length < 2 || arguments[0] < 0 || arguments[0] >= queues.length) {
                 return false;
             }
-            var pri = arguments[0],
-                job = [arguments[1]]; // check later is only of instanceof Array
-            for (var i=2; i<arguments.length; i++) {
+            var pri = arguments[0], job, start;
+            if (arguments.length > 2 && typeof arguments[2] === 'string' &&
+               typeof arguments[1][arguments[2]] === 'function')
+            {
+                job = [arguments[1], arguments[1][arguments[2]]];
+                start = 3;
+            } else {
+                job = [null, arguments[1]];
+                start = 2;
+            }
+            for (var i=start; i<arguments.length; i++) {
                 var arg = arguments[i];
                 if (typeof arg === "function" || arg instanceof Array) {
                     job.push(arguments[i]);
@@ -37,24 +46,6 @@ define(function() {
             queues[pri].push(job);
             count++;
             return true;
-        },
-        blocker: function() {
-            if (arguments.length < 1 || typeof arguments[0] !== "function") {
-                return false;
-            }
-            var job = [arguments[0]]; // check later is only of instanceof Array
-            for (var i=1; i<arguments.length; i++) {
-                var arg = arguments[i];
-                if (typeof arg === "function" || arg instanceof Array) {
-                    job.push(arguments[i]);
-                } else {
-                    job.push([arguments[i]]);
-                }
-            }
-            queues[0].unshift(job);
-            count++;
-            return true;
-
         },
         count: function() { return count; },
         work: function() {
@@ -72,18 +63,17 @@ define(function() {
                 }
 
                 var job = curqueue[0];
-                var hasArgs = (job.length > 1 && job[1] instanceof Array);
-                var ret = job[0].apply(null,(hasArgs) ? job[1] : []);
+                var hasArgs = (job.length > 2 && job[2] instanceof Array);
+                var ret = job[1].apply(job[0],(hasArgs) ? job[2] : []);
                 if (ret === null) {
                     deferred[pri].push(curqueue.shift());
                 } else if (ret !== false) {
-                    job.shift();
-                    if (hasArgs) job.shift();
-                    if (job.length > 1) {
-                        if (typeof job[1] === "function") {
-                            job.splice(1,0,[ret]);
-                        } else if (job[1] instanceof Array) {
-                            job[1].concat(ret);
+                    job.slice(0,(hasArgs) ? 3 : 2);
+                    if (job.length > 2) {
+                        if (typeof job[2] === "function") {
+                            job.splice(2,0,[ret]);
+                        } else if (job[2] instanceof Array) {
+                            job[2].concat(ret);
                         } else {
                             throw "non Array non Function detected in jobqueue";
                         }
