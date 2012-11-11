@@ -1,5 +1,4 @@
 define([
-    "lib/class",
     "lib/random",
     "lib/stacktrace",
     "lib/util",
