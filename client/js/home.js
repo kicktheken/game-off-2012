@@ -6,11 +6,6 @@ define([
     "lib/log"
 ],
 function() {
-    g.IE = /\WMSIE [0-9]\./i.test(navigator.userAgent);
-    if (g.IE) {
-        require(["lib/typedarray", "main"]);
-    } else {
-        require(["main"]);
-    }
+    require(["main"]);
 });
 
