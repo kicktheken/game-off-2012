@@ -32,7 +32,7 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
             mousedown = false;
             vs = [];
             center = {x:0, y:0};
-            deceleration = (g.MOBILE) ? 1 : 2;
+            deceleration = 2 / (g.DRAWSCALE * g.SCALE);
             maxv = 30;
             //log.setCallback(_this.showStatus);
 

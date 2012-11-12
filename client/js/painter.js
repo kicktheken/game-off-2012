@@ -105,7 +105,7 @@ define(["lsystem"],function(LSystem) {
 
             // draw tree
             if (r/rcg.length > .8) {
-                trees[Math.floor(Math.random()*2)].draw(this.context, xpos, ypos);
+                trees[Math.floor(r*4092)%2].draw(this.context, xpos, ypos);
             }
         },
         isPaused:function() { return this.pause; }

@@ -1,4 +1,4 @@
-define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoise) {
+define(["jquery", "engine"], function($, Engine) {
     var engine, $canvas, ctx,
         capabilities = ["canvas", "canvastext", "audio", "localstorage", "sessionstorage"];
 
@@ -27,10 +27,7 @@ define(["jquery", "engine", "lib/simplex-noise"], function($, Engine, SimplexNoi
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
-    g.simplex = new SimplexNoise(rng.fract53);
     Math.random = rng.fract53;
-    g.simplex.d = 32;
-    g.simplex.s = Math.random() * g.simplex.d;
 
     var initApp = function() {
         //log.info("document ready");

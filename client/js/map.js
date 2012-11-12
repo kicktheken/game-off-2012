@@ -1,5 +1,5 @@
-define(function() {
-    var _this, zonewidth, zoneheight, zonemap, map;
+define(["lib/simplex-noise"], function(SimplexNoise) {
+    var _this, zonewidth, zoneheight, zonemap, map, simplex;
     return Class.extend({
         init: function(_zonewidth, _zoneheight) {
             if (typeof _this !== 'undefined') {
@@ -10,13 +10,16 @@ define(function() {
             zonemap = {};
             zonewidth = _zonewidth;
             zoneheight = _zoneheight;
+            simplex = new SimplexNoise();
+            simplex.d = 32;
+            simplex.s = Math.random() * simplex.d;
         },
         tileGenerator: function(x,y) {
-            var r = g.simplex.noise3D(x/g.simplex.d, y/g.simplex.d, g.simplex.s)*.5 +
-                    g.simplex.noise3D(x/g.simplex.d*2, y/g.simplex.d*2, g.simplex.s+64) *.25 +
-                    g.simplex.noise3D(x/g.simplex.d*4, y/g.simplex.d*4, g.simplex.s+128) *.125 +
-                    g.simplex.noise3D(x/g.simplex.d*8, y/g.simplex.d*8, g.simplex.s+256) *.0625;
-            var d = g.simplex.noise3D(x/g.simplex.d/8, y/g.simplex.d/8, g.simplex.s+512);
+            var r = simplex.noise3D(x/simplex.d, y/simplex.d, simplex.s)*.5 +
+                    simplex.noise3D(x/simplex.d*2, y/simplex.d*2, simplex.s+64) *.25 +
+                    simplex.noise3D(x/simplex.d*4, y/simplex.d*4, simplex.s+128) *.125 +
+                    simplex.noise3D(x/simplex.d*8, y/simplex.d*8, simplex.s+256) *.0625;
+            var d = simplex.noise3D(x/simplex.d/8, y/simplex.d/8, simplex.s+512);
             return Math.pow((r+1)/2, 1+d);
         },
         assign: function(x,y) {
@@ -38,7 +41,7 @@ define(function() {
             } else {
                 zonemap[y] = {};
             }
-            var maxy = Math.ceil((2*y+1)*zoneheight);
+            var maxy = Math.ceil((2*y+1)*zoneheight+g.spriteheight);
             var maxx = Math.ceil((2*x+1)*zonewidth);
             for (var row=Math.floor((2*y-1)*zoneheight); row <= maxy; row++) {
                 for (var col=Math.floor((2*x-1)*zonewidth); col <= maxx; col++) {
@@ -61,7 +64,7 @@ define(function() {
             return (function() {
                 var row = Math.floor((2*y-1)*zoneheight),
                     col = Math.floor((2*x-1)*zonewidth),
-                    maxy = Math.ceil((2*y+1)*zoneheight),
+                    maxy = Math.ceil((2*y+1)*zoneheight+g.spriteheight),
                     maxx = Math.ceil((2*x+1)*zonewidth);
                 //log.info([col,row,maxx,maxy],true);
                 return function() {

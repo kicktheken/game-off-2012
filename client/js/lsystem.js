@@ -44,7 +44,12 @@ define(["sprite"], function(Sprite) {
                             state = stack.pop(); break;
                         } default: {
                             state.i = that.iterations - stack.length;
-                            var color = (c == 0 && stack.length > 0) ? that.colors[1] : that.colors[c];
+                            var color;
+                            if (c == 0) {
+                                color = that.colors[(stack.length > 0) ? 1 : 0];
+                            } else {
+                                color = that.colors[parseInt(c)+4-that.rules.length];
+                            }
                             that.drawLine(state, that.context, color);
                             if (depth > 1) {
                                 iterate(that.rules[c], depth-1);

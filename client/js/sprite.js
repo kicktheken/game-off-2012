@@ -2,8 +2,10 @@ define(function() {
     return Class.extend({
         init: function() {
             this.canvas = document.createElement("canvas");
-            this.canvas.width = 100 * g.DRAWSCALE;
-            this.canvas.height = 100 * g.DRAWSCALE;
+            g.spritewidth = 100 * g.DRAWSCALE;
+            g.spriteheight = 100 * g.DRAWSCALE;
+            this.canvas.width = g.spritewidth;
+            this.canvas.height = g.spriteheight;
             document.body.appendChild(this.canvas);
             this.context = this.canvas.getContext('2d');
         },
