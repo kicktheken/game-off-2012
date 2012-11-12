@@ -6,6 +6,9 @@ define(["sprite"], function(Sprite) {
         this.angle = angle;
         this.i = i;
     };
+    function randomIndex(a) {
+        return (a)[Math.floor(Math.random()*(a).length)];
+    }
     return Sprite.extend({
         init: function(o) {
             this._super();
@@ -13,7 +16,11 @@ define(["sprite"], function(Sprite) {
             this.iterations = o.iterations;
             this.distance = o.distance;
             this.angle = o.angle;
-            this.colors = ["rgb(140, 80, 60)", "rgb(100, 150, 24)", "rgb(24, 180, 24)", "rgb(48, 220, 48)"];
+            this.colors = [];
+            this.colors.push(randomIndex(tinycolor.analogous("rgb(140, 80, 60)")).toRgbString());
+            this.colors.push(randomIndex(tinycolor.analogous("rgb(100, 150, 24)")).toRgbString());
+            this.colors.push(randomIndex(tinycolor.analogous("rgb(24, 180, 24)")).toRgbString());
+            this.colors.push(randomIndex(tinycolor.analogous("rgb(48, 220, 48)")).toRgbString());
             this.initLSystem();
         },
         initLSystem: function() {

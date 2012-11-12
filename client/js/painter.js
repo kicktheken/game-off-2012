@@ -12,8 +12,9 @@ define(["lsystem"],function(LSystem) {
             this.maxy = Math.ceil(height/g.theight);
             this.pause = true;
             if (typeof lsystem === 'undefined') {
+                var treetypes = [];
                 // oak
-                trees.push(new LSystem({
+                treetypes.push({
                     rules: [
                         "0-[-2][0+1+1-]+[++1][+0-2-2]",
                         "0[-1][++2]",
@@ -22,9 +23,9 @@ define(["lsystem"],function(LSystem) {
                     iterations: 5,
                     distance: 3,
                     angle: 20
-                }));
+                });
                 // pine
-                trees.push(new LSystem({
+                treetypes.push({
                     rules: [
                         "[++1][--1][-2][+3]0[+3][-2][0]",
                         "[-2][+3]1[+3][-2]",
@@ -34,7 +35,12 @@ define(["lsystem"],function(LSystem) {
                     iterations: 5,
                     distance: 4,
                     angle: 25
-                }));
+                });
+                for (var i=0; i<treetypes.length; i++) {
+                    for (var n=0; n<4; n++) {
+                        trees.push(new LSystem(treetypes[i]));
+                    }
+                }
             }
             this.initCanvas();
         },
@@ -105,7 +111,7 @@ define(["lsystem"],function(LSystem) {
 
             // draw tree
             if (r/rcg.length > .8) {
-                trees[Math.floor(r*4092)%2].draw(this.context, xpos, ypos);
+                trees[Math.floor(r*256*256)%trees.length].draw(this.context, xpos, ypos);
             }
         },
         isPaused:function() { return this.pause; }
