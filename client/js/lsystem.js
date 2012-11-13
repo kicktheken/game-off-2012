@@ -25,8 +25,8 @@ define(["sprite"], function(Sprite) {
         },
         initLSystem: function() {
             var context = this.context,
-                width = this.canvas.width,
-                height = this.canvas.height;
+                width = this.width,
+                height = this.height;
             context.fillStyle = 'rgba(0,0,0,0)';
             context.fillRect(0, 0, width, height);
             context.lineCap = 'round';

@@ -1,8 +1,8 @@
 // vim: set et ts=4 sw=4 fdm=marker:
-define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
+define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQueue) {
     var _this;
     var $canvas, canvas, context, painters = [], bwidth, bheight,
-        map, radius, save, saves = [], center, mousedown, vs, scrollevents = [];
+        map, radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
     var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
@@ -26,7 +26,7 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                 painters.push(new Painter(map, 0, 0, bwidth, bheight));
             }
             jobqueue = new JobQueue(1000);
-
+            player = new Player("img/castle_might.png");
             //jobqueue.push(_this.load);
             radius = 2;
             mousedown = false;
@@ -190,6 +190,7 @@ define(["painter","map","jobqueue"],function(Painter, Map, JobQueue) {
                     }
                 }
             }
+            player.draw(context, canvas.width/2-center.x, canvas.height/2-center.y);
             //context.fillStyle = 'black';
             //context.fillRect(0, 0, canvas.width, canvas.height);
             return true;
