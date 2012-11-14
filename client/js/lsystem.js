@@ -11,7 +11,7 @@ define(["sprite"], function(Sprite) {
     }
     return Sprite.extend({
         init: function(o) {
-            this._super();
+            this._super(g.spritewidth,g.spriteheight,"bottom");
             this.rules = o.rules;
             this.iterations = o.iterations;
             this.distance = o.distance;
@@ -32,7 +32,7 @@ define(["sprite"], function(Sprite) {
             context.lineCap = 'round';
 
             var axiom = "0", stack = [], that = this,
-                state = new State(width/2, height - g.theight/2, this.distance, 0, this.iterations);
+                state = new State(width/2, height, this.distance, 0, this.iterations);
             //var ts = new Date().getTime();
             //context.save();
             (function iterate(axiom, depth) {

@@ -24,6 +24,7 @@ define(["jquery", "engine"], function($, Engine) {
     // reference from http://www.html5rocks.com/en/tutorials/canvas/hidpi/
     g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / getDefault(ctx.webkitBackingStorePixelRatio, 1) : 1;
     g.DRAWSCALE = (g.MOBILE) ? 1 : g.SCALE;
+    g.spritewidth = g.spriteheight = g.DRAWSCALE * 100;
     g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
