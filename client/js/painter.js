@@ -1,11 +1,11 @@
-define(["lsystem"],function(LSystem) {
+define(["sprite", "lsystem"],function(Sprite, LSystem) {
     var rcg = [], trees = [];
     var Painter = Class.extend({
         init: function(map, mx, my, width, height) {
             this.map = map;
             // width and height increased to fix seaming problems
-            this.width = width + 1;
-            this.height = height + 1;
+            this.width = width + 2;
+            this.height = height + 2;
             this.mx = mx;
             this.my = my;
             this.maxx = Math.ceil(width/g.twidth);
@@ -45,11 +45,15 @@ define(["lsystem"],function(LSystem) {
             this.initCanvas();
         },
         initCanvas: function() {
-            this.canvas = document.createElement("canvas");
-            this.canvas.width = this.width;
-            this.canvas.height = this.height;
-            document.body.appendChild(this.canvas);
-            this.context = this.canvas.getContext('2d');
+            this.sprite = new Sprite({
+                width:      this.width,
+                height:     this.height,
+                justify:    "center",
+                z:          0,
+                background: "black"
+            });
+            this.canvas = this.sprite.image;
+            this.context = this.sprite.context;
         },
         assign: function(mx, my) {
             if (this.pause) {
@@ -64,7 +68,7 @@ define(["lsystem"],function(LSystem) {
             return false;
         },
         save: function() {
-            return this.map.saveZone(this.mx,this.my,this.canvas);
+            return this.map.saveZone(this.mx,this.my,this.sprite);
         },
         generateTilesInScreen: function(step) {
             if (this.pause) {
@@ -88,10 +92,8 @@ define(["lsystem"],function(LSystem) {
         },
         drawTile: function(x,y,r) {
             var xpos, ypos, c, i;
-
-            // initialize drawn coords (compensated to fix seaming problems)
-            xpos = x*g.twidth/2 - (this.width-1)*this.mx + this.width/2;
-            ypos = y*g.theight/2 - (this.height-1)*this.my + this.height/2;
+            xpos = x*g.twidth/2 - this.width*this.mx + this.width/2;
+            ypos = y*g.theight/2 - this.height*this.my + this.height/2;
 
             // set color
             r *= rcg.length;
@@ -111,7 +113,7 @@ define(["lsystem"],function(LSystem) {
 
             // draw tree
             if (r/rcg.length > .8) {
-                trees[Math.floor(r*256*256)%trees.length].draw(this.context, xpos, ypos);
+                //trees[Math.floor(r*256*256)%trees.length].draw(this.context, xpos, ypos);
             }
         },
         isPaused:function() { return this.pause; }

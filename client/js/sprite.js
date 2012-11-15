@@ -1,7 +1,7 @@
 define(function() {
     return Class.extend({
-        init: function() {
-            if (typeof arguments[0] === "string") {
+        init: function(args) {
+            if (args.image) {
                 this.image = new Image();
                 var _this = this;
                 this.ready = false;
@@ -12,44 +12,54 @@ define(function() {
                     }
                     _this.ready = true;
                 };
-                this.width = arguments[1];
-                this.height = arguments[2];
-                this.image.src = arguments[0];
+                this.width = args.width;
+                this.height = args.height;
+                this.initOffsets(args);
+                this.image.src = args.image;
             } else {
                 this.image = document.createElement("canvas");
-                this.image.width = this.width = arguments[0];
-                this.image.height = this.height = arguments[1];
+                this.image.width = this.width = args.width * g.DRAWSCALE;
+                this.image.height = this.height = args.height * g.DRAWSCALE;
                 document.body.appendChild(this.image);
                 this.context = this.image.getContext('2d');
-                if (arguments.length > 2) {
-                    var offsetx = 0, offsety = 0;
-                    if (arguments.length > 4) {
-                        offsetx = arguments[3];
-                        offsety = arguments[4];
-                    }
-                    switch (arguments[2]) {
-                        case "center": {
-                            this.x = -this.width/2 + offsetx;
-                            this.y = -this.height/2 + offsety;
-                            break;
-                        } case "bottom": {
-                            this.x = -this.width/2 + offsetx;
-                            this.y = -this.height + offsety;
-                            break;
-                        } default: {
-                            this.x = 0;
-                            this.y = 0;
-                        }
-                    }
-                } else {
-                    this.x = 0;
-                    this.y = 0;
+                if (g.DRAWSCALE > 1) {
+                    this.image.style.width = args.width;
+                    this.image.style.height = args.height;
+                    this.context.scale(g.DRAWSCALE, g.DRAWSCALE);
                 }
+                if (args.background) {
+                    this.context.fillStyle = args.background;
+                    this.context.fillRect(0,0,this.width,this.height);
+                }
+                this.initOffsets(args);
                 this.ready = true;
+            }
+        },
+        initOffsets: function(args) {
+            this.x = getDefault(args.x, 0);
+            this.y = getDefault(args.y, 0);
+            this.z = getDefault(args.z, this.y);
+            if (args.justify) {
+                switch (args.justify) {
+                    case "center": {
+                        this.x -= this.width/2;
+                        this.y -= this.height/2;
+                        break;
+                    } case "bottom": {
+                        this.x -= Math.floor(this.width/2);
+                        this.y -= this.height;
+                        break;
+                    }
+                }
             }
         },
         draw: function(context,x,y) {
             context.drawImage(this.image, x+this.x, y+this.y);
+        },
+        show: function(x,y) {
+            tween(this.image).translate(x+this.x, y+this.y).now();
+            this.image.style.zIndex = this.z;
+            this.image.style.display = 'block';
         }
     });
 });

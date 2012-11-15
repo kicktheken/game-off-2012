@@ -16,12 +16,14 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             bheight = parseInt($canvas.css("height"));
             $canvas.css("width","100%");
             $canvas.css("height","100%");
-            $canvas.css("display","block");
+            //$canvas.css("display","block");
             canvas = $canvas.get(0);
             context = canvas.getContext('2d');
-            g.twidth = 60 * g.DRAWSCALE;
+            g.twidth = 60;
             g.theight = g.twidth/2;
-            map = new Map(bwidth/g.twidth, bheight/g.theight);
+
+            // +2 to fix seaming problem
+            map = new Map((bwidth+2)/g.twidth, (bheight+2)/g.theight);
             for (var i=0; i<1; i++) {
                 painters.push(new Painter(map, 0, 0, bwidth, bheight));
             }
@@ -74,7 +76,7 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
             $canvas.attr('width', width);
             $canvas.attr('height', height);
-            //log.info("engine resize to "+width+"x"+height+" ts:"+(new Date().getTime() - g.INITTIME));
+            log.info("engine resize to "+width+"x"+height+" ts:"+(new Date().getTime() - g.INITTIME));
 
             if (g.BARSIZE > 0) {
                 setTimeout(function() { scrollTo(0,1); }, 100);
@@ -142,29 +144,17 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             context.translate(x,y);
             log.info('translate '+x+' '+y);
         },
-        save: function() {
-            save = bcanvas[0].toDataURL();
-            var m = (save.length < 10) ? save : save.length;
-            log.info("save length: "+m+" "+bcanvas[0].width+"x"+bcanvas[0].height);
-        },
-        saveTo: function() {
-            var ret = bcanvas[0].toDataURL();
-            var m = (ret.length < 10) ? ret : ret.length;
-            log.info("save length: "+m+" "+bcanvas[0].width+"x"+bcanvas[0].height);
-            return ret;
-        },
         loadZone: function(mx,my) {
             var zone = map.loadZone(mx,my);
             if (!zone) {
                 return null;
             }
-            var x = mx*bwidth - Math.round(center.x) + (canvas.width-bwidth)/2,
-                y = my*bheight - Math.round(center.y) + (canvas.height-bheight)/2;
+            var x = mx*bwidth - Math.round(center.x) + (canvas.width)/2,
+                y = my*bheight - Math.round(center.y) + (canvas.height)/2;
             _this.drawImage(x,y,zone);
         },
         load: function() {
             var zoneCoords = _this.getZoneCoords();
-            //log.info(zoneCoords, true);
             context.fillStyle = 'black';
             context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -172,12 +162,10 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                 for (var mx=zoneCoords[0]; mx<=zoneCoords[2]; mx++) {
                     var zone = map.loadZone(mx,my);
                     if (zone) {
-                        var x = mx*bwidth - Math.round(center.x) + (canvas.width-bwidth)/2,
-                            y = my*bheight - Math.round(center.y) + (canvas.height-bheight)/2;
-                        //log.info(mx+","+my,true);
+                        var x = mx*bwidth - Math.round(center.x) + (canvas.width)/2,
+                            y = my*bheight - Math.round(center.y) + (canvas.height)/2;
                         _this.drawImage(x,y,zone);
                     } else if (apply(painters[0], 'isPaused')) {
-                        //log.info("assign: "+mx+","+my,true);
                         if (map.assign(mx,my)) {
                             jobqueue.push(1, painters[0], 'assign', [mx,my]);
                             jobqueue.push(1, map.initZone, [mx,my]);
@@ -191,12 +179,11 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                 }
             }
             player.draw(context, canvas.width/2-center.x, canvas.height/2-center.y);
-            //context.fillStyle = 'black';
-            //context.fillRect(0, 0, canvas.width, canvas.height);
             return true;
         },
         drawImage: function(x,y,img) {
-            context.drawImage(img, x, y);
+            img.show(x,y);
+            //context.drawImage(img, x, y);
             //log.info("load at "+x+" "+y);
         },
         erase: function() {
