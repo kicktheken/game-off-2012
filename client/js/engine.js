@@ -1,9 +1,9 @@
 // vim: set et ts=4 sw=4 fdm=marker:
 define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQueue) {
     var _this;
-    var $canvas, canvas, context, painters = [], bwidth, bheight,
+    var $canvas, canvas, painters = [], bwidth, bheight,
         map, radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
-    var resizeTimeout, worker, jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
+    var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
         init: function($display) {
@@ -18,7 +18,6 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             $canvas.css("height","100%");
             //$canvas.css("display","block");
             canvas = $canvas.get(0);
-            context = canvas.getContext('2d');
             g.twidth = 60;
             g.theight = g.twidth/2;
 
@@ -34,17 +33,11 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             mousedown = false;
             vs = [];
             center = {x:0, y:0};
-            deceleration = 2 / (g.DRAWSCALE * g.SCALE);
+            deceleration = 1;
             maxv = 30;
             //log.setCallback(_this.showStatus);
 
             _this.resize();
-
-            //worker = new Worker("js/worker.js");
-            //worker.onmessage = _this.workerResponse;
-            //var imgdata = context.getImageData(0,0,50,50);
-            //worker.postMessage({action:"init",indexes:1,imgdata:imgdata});
-
         },
         // return [startx,starty,endx,endy] in map coordinates
         getZoneCoords: function() {
@@ -60,15 +53,9 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
         },
         // {{{ resize
         resize: function() {
-            //clearTimeout(resizeTimeout);
-            //resizeTimeout = setTimeout(_this._resize, 100);
-            jobqueue.push(0, _this._resize);
-        },
-        _resize: function() {
             $canvas.height($(window).height() + g.BARSIZE);
-
-            var width = $canvas.width() * g.SCALE,
-                height = $canvas.height() * g.SCALE,
+            var width = $canvas.width(),
+                height = $canvas.height(),
                 oldwidth = $canvas.attr('width'),
                 oldheight = $canvas.attr('height');
             if (width == oldwidth && height == oldwidth) {
@@ -76,16 +63,13 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
             $canvas.attr('width', width);
             $canvas.attr('height', height);
-            log.info("engine resize to "+width+"x"+height+" ts:"+(new Date().getTime() - g.INITTIME));
+            log.info("engine resize to "+width+"x"+height+" ts:"+(g.ts() - g.INITTIME));
 
             if (g.BARSIZE > 0) {
                 setTimeout(function() { scrollTo(0,1); }, 100);
             }
-            jobqueue.push(0, _this.load);
-
-            //_this.load();
+            _this.load();
             return true;
-            //_this.generateTilesInCircle(radius);
         },
         // }}}
         // {{{ cursor
@@ -140,10 +124,6 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
         },
         // }}}
-        translate: function(x,y) {
-            context.translate(x,y);
-            log.info('translate '+x+' '+y);
-        },
         loadZone: function(mx,my) {
             var zone = map.loadZone(mx,my);
             if (!zone) {
@@ -155,8 +135,6 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
         },
         load: function() {
             var zoneCoords = _this.getZoneCoords();
-            context.fillStyle = 'black';
-            context.fillRect(0, 0, canvas.width, canvas.height);
 
             for (var my=zoneCoords[1]; my<=zoneCoords[3]; my++) {
                 for (var mx=zoneCoords[0]; mx<=zoneCoords[2]; mx++) {
@@ -178,7 +156,7 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                     }
                 }
             }
-            player.draw(context, canvas.width/2-center.x, canvas.height/2-center.y);
+            //player.draw(context, canvas.width/2-center.x, canvas.height/2-center.y);
             return true;
         },
         drawImage: function(x,y,img) {
@@ -186,32 +164,11 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             //context.drawImage(img, x, y);
             //log.info("load at "+x+" "+y);
         },
-        erase: function() {
-            context.fillStyle = 'white';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            log.info('erase');
-        },
         scroll: function(x,y) {
             center.x += x;
             center.y += y;
             //jobqueue.push(0, _this.load);
             _this.load();
-        },
-        showStatus: function (msg) {
-            var width = canvas.width, height = canvas.height;
-            context.fillStyle = 'white';
-            context.fillRect(10, height - 40, width - 20, 30);
-            context.fillStyle = 'black';
-            context.font = 'bold 12pt Arial';
-            context.fillText(msg, 20, height - 20);
-        },
-        workerResponse: function(e) {
-            if (e.data.imgdata && center) {
-                context.putImageData(e.data.imgdata, 0, 0);
-            } else {
-                console.log(e.data);
-            }
-            //console.log(e.data);
         },
         run: function() {
             ticks++;
@@ -225,10 +182,10 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
             elapsed += res;
             if (ticks % 100 == 0) {
-                var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
-                msg += " center "+center.x+","+center.y;
-                log.info(msg);
-                //log.info(_this.getZoneCoords());
+                //var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
+                //msg += " center "+center.x+","+center.y;
+                //log.info(msg);
+                log.info(_this.getZoneCoords());
                 //log.info(canvas.width);
                 elapsed = 0;
             }

@@ -18,18 +18,20 @@ define(function() {
                 this.image.src = args.image;
             } else {
                 this.image = document.createElement("canvas");
-                this.image.width = this.width = args.width * g.DRAWSCALE;
-                this.image.height = this.height = args.height * g.DRAWSCALE;
+                this.width = args.width;
+                this.height = args.height;
+                this.image.width =  this.width * g.DRAWSCALE;
+                this.image.height = this.height * g.DRAWSCALE;
                 document.body.appendChild(this.image);
                 this.context = this.image.getContext('2d');
-                if (g.DRAWSCALE > 1) {
-                    this.image.style.width = args.width;
-                    this.image.style.height = args.height;
-                    this.context.scale(g.DRAWSCALE, g.DRAWSCALE);
-                }
                 if (args.background) {
                     this.context.fillStyle = args.background;
-                    this.context.fillRect(0,0,this.width,this.height);
+                    this.context.fillRect(0,0,this.image.width,this.image.height);
+                }
+                if (g.DRAWSCALE > 1) {
+                    this.image.style.width = this.width;
+                    this.image.style.height = this.height;
+                    this.context.scale(g.DRAWSCALE, g.DRAWSCALE);
                 }
                 this.initOffsets(args);
                 this.ready = true;
