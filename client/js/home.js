@@ -4,7 +4,8 @@ define([
     "lib/stacktrace",
     "lib/util",
     "lib/log",
-    "lib/tinycolor"
+    "lib/tinycolor",
+    "lib/transitions"
 ],
 function() {
     require(["main"]);

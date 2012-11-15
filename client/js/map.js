@@ -89,7 +89,7 @@ define(["lib/simplex-noise"], function(SimplexNoise) {
             if (zonemap[y] === undefined || zonemap[y][x] === undefined) {
                 return true; //XXX weird
             }
-            log.info("mapzone count: "+(++count));
+            //log.info("mapzone count: "+(++count));
             zonemap[y][x] = imgsrc;
         },
         loadZone: function(x,y) {
