@@ -62,6 +62,10 @@ define(function() {
             tween(this.image).translate(x+this.x, y+this.y).now();
             this.image.style.zIndex = this.z;
             this.image.style.display = 'block';
+        },
+        hide: function() {
+            //log.info([this.x,this.y]+" is hidden");
+            this.image.style.display = 'none';
         }
     });
 });

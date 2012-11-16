@@ -135,7 +135,7 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
         },
         load: function() {
             var zoneCoords = _this.getZoneCoords();
-
+            map.hide();
             for (var my=zoneCoords[1]; my<=zoneCoords[3]; my++) {
                 for (var mx=zoneCoords[0]; mx<=zoneCoords[2]; mx++) {
                     var zone = map.loadZone(mx,my);

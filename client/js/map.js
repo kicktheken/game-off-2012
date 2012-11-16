@@ -1,5 +1,5 @@
 define(["lib/simplex-noise"], function(SimplexNoise) {
-    var _this, zonewidth, zoneheight, zonemap, map, simplex, count;
+    var _this, zonewidth, zoneheight, zonemap, map, simplex, showqueue, count;
     return Class.extend({
         init: function(_zonewidth, _zoneheight) {
             if (typeof _this !== 'undefined') {
@@ -13,6 +13,7 @@ define(["lib/simplex-noise"], function(SimplexNoise) {
             simplex = new SimplexNoise();
             simplex.d = 32;
             simplex.s = Math.random() * simplex.d;
+            showqueue = [];
             count = 0;
         },
         tileGenerator: function(x,y) {
@@ -96,7 +97,14 @@ define(["lib/simplex-noise"], function(SimplexNoise) {
             if (zonemap[y] === undefined || zonemap[y][x] === undefined || typeof zonemap[y][x] === "boolean") {
                 return false;
             }
+            showqueue.push(zonemap[y][x]);
             return zonemap[y][x];
+        },
+        hide: function() {
+            for (var i=0; i<showqueue.length; i++) {
+                showqueue[i].hide();
+            }
+            showqueue = [];
         }
     });
 });
