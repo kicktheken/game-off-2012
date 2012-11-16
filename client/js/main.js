@@ -46,14 +46,14 @@ define(["jquery", "engine"], function($, Engine) {
         $(window).resize(engine.resize);
 
         if (g.MOBILE) {
-            $canvas.bind('touchstart', function(e) {
+            $(document).bind('touchstart', function(e) {
                 e = e.originalEvent.touches[0];
                 engine.cursorstart(e.pageX, e.pageY);
             });
-            $canvas.bind('touchend', function(e) {
+            $(document).bind('touchend', function(e) {
                 engine.cursorend();
             });
-            $canvas.bind('touchmove', function(e) {
+            $(document).bind('touchmove', function(e) {
                 var orig = e.originalEvent.touches[0];
                 if (orig.pageY > g.BARSIZE) {
                     e.preventDefault();
