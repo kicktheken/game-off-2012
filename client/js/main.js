@@ -1,11 +1,19 @@
 define(["jquery", "engine"], function($, Engine) {
-    var engine, $canvas, ctx,
-        capabilities = ["canvas", "canvastext", "audio", "localstorage", "sessionstorage"];
+    var engine, $canvas, ctx, capabilities;
+    capabilities = [
+        "canvas",
+        "canvastext",
+        "audio",
+        "localstorage",
+        "sessionstorage",
+        "applicationcache",
+        "csstransforms"
+    ];
 
     //log.info(Modernizr);
     for (var i=0; i<capabilities.length; i++) {
         if (!Modernizr[capabilities[i]]) {
-            alert("Your browser does not support HTML5 "+capabilities[i]);
+            alert("Your browser does not support "+capabilities[i]);
             //return;
         }
     }
