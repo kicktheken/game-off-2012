@@ -1,5 +1,5 @@
 define(["jquery", "engine"], function($, Engine) {
-    var engine, $canvas, ctx, capabilities;
+    var engine, ctx, capabilities;
     capabilities = [
         "canvas",
         "canvastext",
@@ -22,25 +22,21 @@ define(["jquery", "engine"], function($, Engine) {
 
     g.ts = function() { return new Date().getTime(); };
     g.INITTIME = g.ts();
-    var android = /Android\s[3-9]\./i.test(navigator.userAgent), // is Android 3.0+
-        apple = /Mac OS.+Version\/[0-9]\.[0-9]/i.test(navigator.userAgent); // is Mobile Safari
 
-    $canvas = $("canvas");
-    ctx = $canvas.get(0).getContext('2d');
+    ctx = document.createElement('canvas').getContext('2d');
 
     // reference from http://www.html5rocks.com/en/tutorials/canvas/hidpi/
     g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / getDefault(ctx.webkitBackingStorePixelRatio, 1) : 1;
-    g.DRAWSCALE = (g.MOBILE) ? 1 : g.SCALE;
-    g.spritewidth = g.spriteheight = g.DRAWSCALE * 100;
-    g.BARSIZE = (!g.MOBILE) ? 0 : (android) ? 52 : (apple) ? ((window.navigator.standalone) ? 0 : 60) : 0;
+    g.spritewidth = g.spriteheight = g.SCALE * 100;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
     Math.random = rng.fract53;
+    ctx = null;
 
     var initApp = function() {
         //log.info("document ready");
 
-        engine = new Engine($canvas);
+        engine = new Engine();
         //$canvas = engine.getCanvas();
 
         $(window).resize(engine.resize);
@@ -55,9 +51,7 @@ define(["jquery", "engine"], function($, Engine) {
             });
             $(document).bind('touchmove', function(e) {
                 var orig = e.originalEvent.touches[0];
-                if (orig.pageY > g.BARSIZE) {
-                    e.preventDefault();
-                }
+                e.preventDefault();
                 engine.cursormove(orig.pageX, orig.pageY);
             });
 

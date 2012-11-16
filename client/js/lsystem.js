@@ -70,9 +70,9 @@ define(["sprite"], function(Sprite) {
         },
         drawLine: function(s, context, color) {
             var rad = (s.angle - 90) * Math.PI / 180,
-                toX = s.x + s.d * Math.cos(rad) * g.DRAWSCALE,
-                toY = s.y + s.d * Math.sin(rad) * g.DRAWSCALE;
-            context.lineWidth = s.i * g.DRAWSCALE;
+                toX = s.x + s.d * Math.cos(rad),
+                toY = s.y + s.d * Math.sin(rad);
+            context.lineWidth = s.i;
             context.strokeStyle = color;
             context.beginPath();
             context.moveTo(s.x, s.y);

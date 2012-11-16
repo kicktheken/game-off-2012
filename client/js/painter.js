@@ -4,8 +4,8 @@ define(["sprite", "lsystem"],function(Sprite, LSystem) {
         init: function(map, mx, my, width, height) {
             this.map = map;
             // width and height increased to fix seaming problems
-            this.width = width + 2;
-            this.height = height + 2;
+            this.width = width + 1;
+            this.height = height + 1;
             this.mx = mx;
             this.my = my;
             this.maxx = Math.ceil(width/g.twidth);
@@ -92,8 +92,8 @@ define(["sprite", "lsystem"],function(Sprite, LSystem) {
         },
         drawTile: function(x,y,r) {
             var xpos, ypos, c, i;
-            xpos = x*g.twidth/2 - this.width*this.mx + this.width/2;
-            ypos = y*g.theight/2 - this.height*this.my + this.height/2;
+            xpos = x*g.twidth/2 - (this.width-1)*this.mx + this.width/2;
+            ypos = y*g.theight/2 - (this.height-1)*this.my + this.height/2;
 
             // set color
             r *= rcg.length;

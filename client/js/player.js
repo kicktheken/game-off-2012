@@ -14,8 +14,8 @@ define(["sprite"], function(Sprite) {
         },
         draw: function(context,x,y) {
             if (this.ready) {
-                var d = g.DRAWSCALE, ts = g.ts();
-                context.drawImage(this.image,this.srcx,0,64,64, x-32*d,y-60*d,64*d,64*d);
+                var ts = g.ts();
+                context.drawImage(this.image,this.srcx,0,64,64, x-32,y-60,64,64);
                 this.ms += ts - this.ts;
                 this.ts = ts;
                 this.srcx = (13+(Math.floor((this.ms)/50)%8))*96+16;

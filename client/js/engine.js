@@ -1,28 +1,23 @@
 // vim: set et ts=4 sw=4 fdm=marker:
 define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQueue) {
     var _this;
-    var $canvas, canvas, painters = [], bwidth, bheight,
+    var painters = [], width, height, bwidth, bheight,
         map, radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
     var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
-        init: function($display) {
+        init: function() {
             if (typeof _this !== 'undefined') {
                 throw "Engine is a singleton and cannot be initialized more than once";
             }
             _this = this;
-            $canvas = $display;
-            bwidth = parseInt($canvas.css("width"));
-            bheight = parseInt($canvas.css("height"));
-            $canvas.css("width","100%");
-            $canvas.css("height","100%");
-            //$canvas.css("display","block");
-            canvas = $canvas.get(0);
+            bwidth = (g.MOBILE) ? 480 : 640;
+            bheight = (g.MOBILE) ? 480 : 640;
             g.twidth = 60;
             g.theight = g.twidth/2;
 
             // +2 to fix seaming problem
-            map = new Map((bwidth+2)/g.twidth, (bheight+2)/g.theight);
+            map = new Map(bwidth/g.twidth, bheight/g.theight);
             for (var i=0; i<1; i++) {
                 painters.push(new Painter(map, 0, 0, bwidth, bheight));
             }
@@ -45,30 +40,21 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                 modx = Math.round(center.x + bwidth/2)%bwidth, mody = Math.round(center.y +bheight/2)%bheight;
             if (modx < 0) modx = bwidth + modx;
             if (mody < 0) mody = bheight + mody;
-            ret.push(x-Math.ceil((canvas.width/2 - modx)/bwidth));
-            ret.push(y-Math.ceil((canvas.height/2 - mody)/bheight));
-            ret.push(x+Math.ceil((canvas.width/2 - bwidth + modx)/bwidth));
-            ret.push(y+Math.ceil((canvas.height/2 - bheight + mody)/bheight));
+            ret.push(x-Math.ceil((width/2 - modx)/bwidth));
+            ret.push(y-Math.ceil((height/2 - mody)/bheight));
+            ret.push(x+Math.ceil((width/2 - bwidth + modx)/bwidth));
+            ret.push(y+Math.ceil((height/2 - bheight + mody)/bheight));
             return ret;
         },
         // {{{ resize
         resize: function() {
-            $canvas.height($(window).height() + g.BARSIZE);
-            var width = $canvas.width(),
-                height = $canvas.height(),
-                oldwidth = $canvas.attr('width'),
-                oldheight = $canvas.attr('height');
-            if (width == oldwidth && height == oldwidth) {
-                return true;
-            }
-            $canvas.attr('width', width);
-            $canvas.attr('height', height);
+            width = $(window).width();
+            height = $(window).height();
+            document.body.style.width = width;
+            document.body.style.height = height;
             log.info("engine resize to "+width+"x"+height+" ts:"+(g.ts() - g.INITTIME));
 
             jobqueue.push(0, _this.load);
-            if (g.BARSIZE > 0) {
-                jobqueue.push(0, window.scrollTo, [0,1]);
-            }
             return true;
         },
         // }}}
@@ -129,8 +115,8 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             if (!zone) {
                 return null;
             }
-            var x = mx*bwidth - Math.round(center.x) + (canvas.width)/2,
-                y = my*bheight - Math.round(center.y) + (canvas.height)/2;
+            var x = mx*bwidth - Math.round(center.x) + width/2,
+                y = my*bheight - Math.round(center.y) + height/2;
             _this.drawImage(x,y,zone);
         },
         load: function() {
@@ -140,8 +126,8 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                 for (var mx=zoneCoords[0]; mx<=zoneCoords[2]; mx++) {
                     var zone = map.loadZone(mx,my);
                     if (zone) {
-                        var x = mx*bwidth - Math.round(center.x) + (canvas.width)/2,
-                            y = my*bheight - Math.round(center.y) + (canvas.height)/2;
+                        var x = mx*bwidth - Math.round(center.x) + width/2,
+                            y = my*bheight - Math.round(center.y) + height/2;
                         _this.drawImage(x,y,zone);
                     } else if (apply(painters[0], 'isPaused')) {
                         if (map.assign(mx,my)) {
@@ -166,7 +152,7 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                     }
                 }
             }
-            //player.draw(context, canvas.width/2-center.x, canvas.height/2-center.y);
+            //player.draw(context, width/2-center.x, height/2-center.y);
             return true;
         },
         drawImage: function(x,y,img) {
