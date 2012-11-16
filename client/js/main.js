@@ -27,7 +27,7 @@ define(["jquery", "engine"], function($, Engine) {
 
     // reference from http://www.html5rocks.com/en/tutorials/canvas/hidpi/
     g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / getDefault(ctx.webkitBackingStorePixelRatio, 1) : 1;
-    g.spritewidth = g.spriteheight = g.SCALE * 100;
+    g.spritewidth = g.spriteheight = 100;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
     Math.random = rng.fract53;

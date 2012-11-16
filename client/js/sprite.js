@@ -54,13 +54,17 @@ define(function() {
                     }
                 }
             }
+            this.image.style.zIndex = this.z;
         },
         draw: function(context,x,y) {
-            context.drawImage(this.image, x+this.x, y+this.y);
+            context.drawImage(
+                this.image,
+                0, 0, this.image.width, this.image.height,
+                x+this.x, y+this.y, this.width, this.height
+            );
         },
         show: function(x,y) {
             tween(this.image).translate(x+this.x, y+this.y).now();
-            this.image.style.zIndex = this.z;
             this.image.style.display = 'block';
         },
         hide: function() {

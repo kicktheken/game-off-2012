@@ -11,7 +11,12 @@ define(["sprite"], function(Sprite) {
     }
     return Sprite.extend({
         init: function(o) {
-            this._super(g.spritewidth,g.spriteheight,"bottom");
+            this._super({
+                width:  g.spritewidth,
+                height: g.spriteheight,
+                justify: "bottom",
+                z: 1
+            });
             this.rules = o.rules;
             this.iterations = o.iterations;
             this.distance = o.distance;

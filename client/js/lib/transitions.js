@@ -24,13 +24,6 @@
 
 	/**
 	* 
-	* Console.log fallback
-	* 
-	*/
-	(function(){try{console.log();return window.console;}catch(a){return (window.console={});}}());
-
-	/**
-	* 
 	* Constructor
 	* @param {String or object} selector
 	* 

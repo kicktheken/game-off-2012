@@ -113,7 +113,7 @@ define(["sprite", "lsystem"],function(Sprite, LSystem) {
 
             // draw tree
             if (r/rcg.length > .8) {
-                //trees[Math.floor(r*256*256)%trees.length].draw(this.context, xpos, ypos);
+                trees[Math.floor(r*256*256)%trees.length].draw(this.context, xpos, ypos);
             }
         },
         isPaused:function() { return this.pause; }
