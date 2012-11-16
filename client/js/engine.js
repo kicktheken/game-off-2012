@@ -65,10 +65,10 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             $canvas.attr('height', height);
             log.info("engine resize to "+width+"x"+height+" ts:"+(g.ts() - g.INITTIME));
 
+            jobqueue.push(0, _this.load);
             if (g.BARSIZE > 0) {
-                setTimeout(function() { scrollTo(0,1); }, 100);
+                jobqueue.push(0, window.scrollTo, [0,1]);
             }
-            _this.load();
             return true;
         },
         // }}}
@@ -177,8 +177,7 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
         scroll: function(x,y) {
             center.x += x;
             center.y += y;
-            //jobqueue.push(0, _this.load);
-            _this.load();
+            jobqueue.push(0, _this.load);
         },
         run: function() {
             ticks++;
