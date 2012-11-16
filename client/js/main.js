@@ -6,8 +6,7 @@ define(["jquery", "engine"], function($, Engine) {
         "audio",
         "localstorage",
         "sessionstorage",
-        "applicationcache",
-        "csstransforms"
+        "applicationcache"
     ];
 
     //log.info(Modernizr);
