@@ -105,6 +105,7 @@ define(["lib/simplex-noise"], function(SimplexNoise) {
                 showqueue[i].hide();
             }
             showqueue = [];
-        }
+        },
+        showLength: function() { return showqueue.length; }
     });
 });

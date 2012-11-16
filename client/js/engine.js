@@ -145,11 +145,21 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                         _this.drawImage(x,y,zone);
                     } else if (apply(painters[0], 'isPaused')) {
                         if (map.assign(mx,my)) {
-                            jobqueue.push(1, painters[0], 'assign', [mx,my]);
-                            jobqueue.push(1, map.initZone, [mx,my]);
-                            jobqueue.push(1, painters[0], 'generateTilesInScreen', 1000);
-                            jobqueue.push(1, painters[0], 'save');
-                            jobqueue.push(1, _this.loadZone, [mx,my]);
+                            jobqueue.push(1, function(painter, mx, my) {
+                                if (!apply(painter, 'assign', mx, my)) {
+                                    return false;
+                                }
+                                map.initZone(mx,my);
+                                return true;
+                            }, [painters[0], mx, my]);
+                            jobqueue.push(1, function(painter, mx, my) {
+                                if (!apply(painter, 'generateTilesInScreen', 1000)) {
+                                    return false;
+                                }
+                                apply(painter, 'save');
+                                _this.loadZone(mx, my);
+                                return true;
+                            }, [painters[0], mx, my]);
                         }
                     } else {
                         //log.info("nothing at: "+mx+","+my,true);
@@ -182,11 +192,10 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
             elapsed += res;
             if (ticks % 100 == 0) {
-                //var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
-                //msg += " center "+center.x+","+center.y;
-                //log.info(msg);
+                var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
+                msg += " center "+[center.x,+center.y]+ " showqueue: "+map.showLength();
+                log.info(msg);
                 log.info(_this.getZoneCoords());
-                //log.info(canvas.width);
                 elapsed = 0;
             }
         }
