@@ -32,6 +32,14 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             maxv = 30;
             //log.setCallback(_this.showStatus);
 
+            document.onkeypress = function(e) {
+                switch (e.keyCode) {
+                    case 105: player.mx--; player.my--; break; //i
+                    case 106: player.mx--; player.my++; break; //j
+                    case 107: player.mx++; player.my++; break; //k
+                    case 108: player.mx++; player.my--; break; //l
+                }
+            };
             _this.resize();
         },
         // return [startx,starty,endx,endy] in map coordinates
@@ -152,7 +160,7 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                     }
                 }
             }
-            //player.draw(context, width/2-center.x, height/2-center.y);
+            player.draw(width/2-center.x, height/2-center.y);
             return true;
         },
         drawImage: function(x,y,img) {
