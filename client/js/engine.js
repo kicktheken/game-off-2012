@@ -1,8 +1,8 @@
 // vim: set et ts=4 sw=4 fdm=marker:
-define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQueue) {
+define(["painter","player","jobqueue"],function(Painter, Player, JobQueue) {
     var _this;
-    var painters = [], width, height, bwidth, bheight,
-        map, radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
+    var painter, width, height, bwidth, bheight,
+        radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
     var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
@@ -11,16 +11,12 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                 throw "Engine is a singleton and cannot be initialized more than once";
             }
             _this = this;
-            bwidth = (g.MOBILE) ? 480 : 640;
-            bheight = (g.MOBILE) ? 480 : 640;
             g.twidth = 60;
             g.theight = g.twidth/2;
 
             // +2 to fix seaming problem
-            map = new Map(bwidth/g.twidth, bheight/g.theight);
-            for (var i=0; i<1; i++) {
-                painters.push(new Painter(map, 0, 0, bwidth, bheight));
-            }
+            //map = new Map(bwidth/g.twidth, bheight/g.theight);
+            painter = new Painter();
             jobqueue = new JobQueue(1000);
             player = new Player("img/castle_might.png");
             //jobqueue.push(_this.load);
@@ -41,18 +37,6 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
                 }
             };
             _this.resize();
-        },
-        // return [startx,starty,endx,endy] in map coordinates
-        getZoneCoords: function() {
-            var ret = [], x = Math.floor(center.x/bwidth + .5), y = Math.floor(center.y/bheight + .5),
-                modx = Math.round(center.x + bwidth/2)%bwidth, mody = Math.round(center.y +bheight/2)%bheight;
-            if (modx < 0) modx = bwidth + modx;
-            if (mody < 0) mody = bheight + mody;
-            ret.push(x-Math.ceil((width/2 - modx)/bwidth));
-            ret.push(y-Math.ceil((height/2 - mody)/bheight));
-            ret.push(x+Math.ceil((width/2 - bwidth + modx)/bwidth));
-            ret.push(y+Math.ceil((height/2 - bheight + mody)/bheight));
-            return ret;
         },
         // {{{ resize
         resize: function() {
@@ -118,47 +102,17 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
         },
         // }}}
-        loadZone: function(mx,my) {
-            var zone = map.loadZone(mx,my);
-            if (!zone) {
-                return null;
-            }
-            var x = mx*bwidth - Math.round(center.x) + width/2,
-                y = my*bheight - Math.round(center.y) + height/2;
-            _this.drawImage(x,y,zone);
-        },
         load: function() {
-            var zoneCoords = _this.getZoneCoords();
-            map.hide();
-            for (var my=zoneCoords[1]; my<=zoneCoords[3]; my++) {
-                for (var mx=zoneCoords[0]; mx<=zoneCoords[2]; mx++) {
-                    var zone = map.loadZone(mx,my);
-                    if (zone) {
-                        var x = mx*bwidth - Math.round(center.x) + width/2,
-                            y = my*bheight - Math.round(center.y) + height/2;
-                        _this.drawImage(x,y,zone);
-                    } else if (apply(painters[0], 'isPaused')) {
-                        if (map.assign(mx,my)) {
-                            jobqueue.push(1, function(painter, mx, my) {
-                                if (!apply(painter, 'assign', mx, my)) {
-                                    return false;
-                                }
-                                map.initZone(mx,my);
-                                return true;
-                            }, [painters[0], mx, my]);
-                            jobqueue.push(1, function(painter, mx, my) {
-                                if (!apply(painter, 'generateTilesInScreen', 1000)) {
-                                    return false;
-                                }
-                                apply(painter, 'save');
-                                _this.loadZone(mx, my);
-                                return true;
-                            }, [painters[0], mx, my]);
-                        }
-                    } else {
-                        //log.info("nothing at: "+mx+","+my,true);
+            var jobs = painter.load(center.x, center.y, width, height);
+            for (var i=0; i<jobs.length; i++) {
+                jobqueue.push(1, function(job) {
+                    var ret = job();
+                    if (ret) {
+                        ret(center.x, center.y, width, height);
+                        return true;
                     }
-                }
+                    return false;
+                }, [jobs[i]]);
             }
             player.draw(width/2-center.x, height/2-center.y);
             return true;
@@ -185,10 +139,9 @@ define(["painter","player","map","jobqueue"],function(Painter, Player, Map, JobQ
             }
             elapsed += res;
             if (ticks % 100 == 0) {
-                var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
-                msg += " center "+[center.x,+center.y]+ " showqueue: "+map.showLength();
-                log.info(msg);
-                log.info(_this.getZoneCoords());
+                //var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
+                //msg += " center "+[center.x,+center.y]+ " showqueue: "+map.showLength();
+                //log.info(msg);
                 elapsed = 0;
             }
         }

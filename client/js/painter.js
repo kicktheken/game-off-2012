@@ -1,122 +1,144 @@
-define(["sprite", "lsystem"],function(Sprite, LSystem) {
-    var rcg = [], trees = [];
+define(["map", "overlay", "sprite", "lsystem"],function(Map, Overlay, Sprite, LSystem) {
+    var _this, map, terrainmap, spritemap, rcg = [], trees = [],
+        dsize, size, shownqueue, jobs;
     var Painter = Class.extend({
-        init: function(map, mx, my, width, height) {
-            this.map = map;
-            // width and height increased to fix seaming problems
-            this.width = width + 1;
-            this.height = height + 1;
-            this.mx = mx;
-            this.my = my;
-            this.maxx = Math.ceil(width/g.twidth);
-            this.maxy = Math.ceil(height/g.theight);
-            this.pause = true;
-            if (typeof lsystem === 'undefined') {
-                var treetypes = [];
-                // oak
-                treetypes.push({
-                    rules: [
-                        "0-[-2][0+1+1-]+[++1][+0-2-2]",
-                        "0[-1][++2]",
-                        "0[+1][--2]"
-                    ],
-                    iterations: 5,
-                    distance: 3,
-                    angle: 20
-                });
-                // pine
-                treetypes.push({
-                    rules: [
-                        "[++1][--1][-2][+3]0[+3][-2][0]",
-                        "[-2][+3]1[+3][-2]",
-                        "0",
-                        "0"
-                    ],
-                    iterations: 5,
-                    distance: 4,
-                    angle: 25
-                });
-                for (var i=0; i<treetypes.length; i++) {
-                    for (var n=0; n<4; n++) {
-                        trees.push(new LSystem(treetypes[i]));
-                    }
-                }
+        init: function() {
+            if (typeof _this !== 'undefined') {
+                throw "Painter is a singleton and cannot be initialized more than once";
             }
-            this.initCanvas();
-        },
-        initCanvas: function() {
-            this.sprite = new Sprite({
-                width:      this.width,
-                height:     this.height,
-                justify:    "center",
-                z:          0,
-                background: "black"
+            _this = this;
+            map = new Map();
+            dsize = (g.MOBILE) ? 480 : 640;
+            size = dsize + 1;
+            shownqueue = [];
+
+            terrainmap = new Overlay(function() {
+                return new Sprite({
+                    width:      size,
+                    height:     size,
+                    justify:    "center",
+                    z:          0,
+                    background: "black"
+                });
             });
-            this.canvas = this.sprite.image;
-            this.context = this.sprite.context;
-        },
-        assign: function(mx, my) {
-            if (this.pause) {
-                this.mx = mx;
-                this.my = my;
-                this.pause = false;
-                this.initCanvas();
-                this.context.fillStyle = 'white';
-                this.context.fillRect(0,0,this.width,this.height);
-                return true;
-            }
-            return false;
-        },
-        save: function() {
-            return this.map.saveZone(this.mx,this.my,this.sprite);
-        },
-        generateTilesInScreen: function(step) {
-            if (this.pause) {
-                return false;
-            }
-            if (!this.iterator) {
-                this.iterator = this.map.getZoneIterator(this.mx,this.my);
-            }
-            for (var i=0; i<step; i++) {
-                var data = this.iterator();
-                if (!data) {
-                    this.pause = true;
-                    this.iterator = null;
-                    return true;
+
+            spritemap = new Overlay(function() {
+                return new Sprite({
+                    width:      size,
+                    height:     g.spriteheight,
+                    justify:    "center",
+                    z:          0,
+                    background: "black"
+                });
+            });
+
+            var treetypes = [];
+            // oak
+            treetypes.push({
+                rules: [
+                    "0-[-2][0+1+1-]+[++1][+0-2-2]",
+                    "0[-1][++2]",
+                    "0[+1][--2]"
+                ],
+                iterations: 5,
+                distance: 3,
+                angle: 20
+            });
+            // pine
+            treetypes.push({
+                rules: [
+                    "[++1][--1][-2][+3]0[+3][-2][0]",
+                    "[-2][+3]1[+3][-2]",
+                    "0",
+                    "0"
+                ],
+                iterations: 5,
+                distance: 4,
+                angle: 25
+            });
+            for (var i=0; i<treetypes.length; i++) {
+                for (var n=0; n<4; n++) {
+                    trees.push(new LSystem(treetypes[i]));
                 }
-                if ((data[0]+data[1]) % 2 === 0) {
-                    this.drawTile.apply(this, data);
-                }
             }
-            return false;
         },
-        drawTile: function(x,y,r) {
+        getZoneCoords: function() { return zoneCoords; },
+        load: function(centerx, centery, vwidth, vheight) {
+            var x = Math.floor(centerx/dsize + .5), y = Math.floor(centery/dsize + .5),
+                modx = Math.round(centerx + dsize/2)%dsize, mody = Math.round(centery +dsize/2)%dsize;
+            if (modx < 0) modx = dsize + modx;
+            if (mody < 0) mody = dsize + mody;
+            var col = x-Math.ceil((vwidth/2 - modx)/dsize),
+                row = y-Math.ceil((vheight/2 - mody)/dsize),
+                maxx = x+Math.ceil((vwidth/2 - dsize + modx)/dsize),
+                maxy = y+Math.ceil((vheight/2 - dsize + mody)/dsize);
+            var loadedFunc = function(zone,mx,my) {
+                var x = mx*dsize - Math.round(centerx) + vwidth/2,
+                    y = my*dsize - Math.round(centery) + vheight/2;
+                shownqueue.push(zone);
+                zone.show(x,y);
+            };
+            var jobs = [], generateFunc = function(zone,mx,my) {
+                jobs.push((function() {
+                    var iterator = map.getZoneIterator(
+                        Math.floor((2*mx-1)*dsize/g.twidth),
+                        Math.floor((2*my-1)*dsize/g.theight),
+                        Math.ceil((2*mx+1)*dsize/g.twidth),
+                        Math.ceil((2*my+1)*dsize/g.theight + g.spriteheight/g.theight)
+                    );
+                    return function() {
+                        for (var i=0; i<1000; i++) {
+                            var data = iterator();
+                            if (!data) {
+                                zone.ready = true;
+                                return function(centerx,centery,vwidth,vheight) {
+                                    var x = mx*dsize - Math.round(centerx) + vwidth/2,
+                                        y = my*dsize - Math.round(centery) + vheight/2;
+                                    shownqueue.push(zone);
+                                    zone.show(x,y);
+                                };
+                            }
+                            if ((data[0]+data[1]) % 2 === 0) {
+                                _this.drawTile.apply(_this, [zone.context,mx,my].concat(data));
+                            }
+                        }
+                        return false;
+                    };
+                })());
+            };
+            for (var i=0; i<shownqueue.length; i++) {
+                shownqueue[i].hide();
+            }
+            shownqueue = [];
+            terrainmap.setZones(col,row,maxx,maxy,loadedFunc,generateFunc);
+            return jobs;
+        },
+        drawTile: function(context,mx,my,x,y,r) {
             var xpos, ypos, c, i;
-            xpos = x*g.twidth/2 - (this.width-1)*this.mx + this.width/2;
-            ypos = y*g.theight/2 - (this.height-1)*this.my + this.height/2;
+            xpos = x*g.twidth/2 - dsize*mx + size/2;
+            ypos = y*g.theight/2 - dsize*my + size/2;
 
             // set color
             r *= rcg.length;
             i = Math.floor(r);
             c = rcg[i](r-i);
-            this.context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
+            context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
 
             // draw on context
-            this.context.beginPath();
-            this.context.moveTo(xpos, ypos + g.theight/2);
-            this.context.lineTo(xpos + g.twidth/2, ypos);
-            this.context.lineTo(xpos, ypos - g.theight/2);
-            this.context.lineTo(xpos - g.twidth/2, ypos);
-            this.context.closePath();
-            this.context.stroke();
-            this.context.fill();
+            context.beginPath();
+            context.moveTo(xpos, ypos + g.theight/2);
+            context.lineTo(xpos + g.twidth/2, ypos);
+            context.lineTo(xpos, ypos - g.theight/2);
+            context.lineTo(xpos - g.twidth/2, ypos);
+            context.closePath();
+            context.stroke();
+            context.fill();
 
             // draw tree
             if (r/rcg.length > .8) {
-                trees[Math.floor(r*256*256)%trees.length].draw(this.context, xpos, ypos);
+                trees[Math.floor(r*256*256)%trees.length].draw(context, xpos, ypos);
             }
-        },
-        isPaused:function() { return this.pause; }
+        }
     });
 
     // initialize color generators
