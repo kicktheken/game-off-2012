@@ -1,13 +1,14 @@
-define(["map", "overlay", "sprite", "lsystem"],function(Map, Overlay, Sprite, LSystem) {
-    var _this, map, terrainmap, spritemap, rcg = [], trees = [],
+define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
+    var _this, map, player, terrainmap, rcg = [], trees = [],
         dsize, size, shownqueue, jobs;
     var Painter = Class.extend({
-        init: function() {
+        init: function(_map, _player) {
             if (typeof _this !== 'undefined') {
                 throw "Painter is a singleton and cannot be initialized more than once";
             }
             _this = this;
-            map = new Map();
+            map = _map;
+            player = _player;
             dsize = (g.MOBILE) ? 480 : 640;
             size = dsize + 1;
             shownqueue = [];
@@ -62,7 +63,6 @@ define(["map", "overlay", "sprite", "lsystem"],function(Map, Overlay, Sprite, LS
                 }
             }
         },
-        getZoneCoords: function() { return zoneCoords; },
         load: function(centerx, centery, vwidth, vheight) {
             var x = Math.floor(centerx/dsize + .5), y = Math.floor(centery/dsize + .5),
                 modx = Math.round(centerx + dsize/2)%dsize, mody = Math.round(centery +dsize/2)%dsize;
@@ -111,7 +111,22 @@ define(["map", "overlay", "sprite", "lsystem"],function(Map, Overlay, Sprite, LS
             }
             shownqueue = [];
             terrainmap.setZones(col,row,maxx,maxy,loadedFunc,generateFunc);
+            player.draw(vwidth/2 - centerx, vheight/2 - centery);
+            _this.drawTree(player.context, player.mx-1, player.my+1);
+            _this.drawTree(player.context, player.mx+1, player.my+1);
+            _this.drawTree(player.context, player.mx, player.my+2);
+            _this.drawTree(player.context, player.mx, player.my+4);
+            _this.drawTree(player.context, player.mx-1, player.my+3);
+            _this.drawTree(player.context, player.mx+1, player.my+3);
             return jobs;
+        },
+        drawTree: function(context,mx,my) {
+            var r = map.getTile(mx,my);
+            if (r > .8) {
+                var x = (mx-player.mx)*g.twidth/2 + player.width/2,
+                    y = (my-player.my)*g.theight/2 + player.height;
+                trees[Math.floor(r*256*256)%trees.length].draw(context, x-player.x, y-player.y);
+            }
         },
         drawTile: function(context,mx,my,x,y,r) {
             var xpos, ypos, c, i;
@@ -119,9 +134,9 @@ define(["map", "overlay", "sprite", "lsystem"],function(Map, Overlay, Sprite, LS
             ypos = y*g.theight/2 - dsize*my + size/2;
 
             // set color
-            r *= rcg.length;
-            i = Math.floor(r);
-            c = rcg[i](r-i);
+            var h = r*rcg.length;
+            i = Math.floor(h);
+            c = rcg[i](h-i);
             context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
 
             // draw on context
@@ -135,7 +150,7 @@ define(["map", "overlay", "sprite", "lsystem"],function(Map, Overlay, Sprite, LS
             context.fill();
 
             // draw tree
-            if (r/rcg.length > .8) {
+            if (r > .8) {
                 trees[Math.floor(r*256*256)%trees.length].draw(context, xpos, ypos);
             }
         }

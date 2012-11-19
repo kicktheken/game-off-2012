@@ -1,7 +1,7 @@
 // vim: set et ts=4 sw=4 fdm=marker:
-define(["painter","player","jobqueue"],function(Painter, Player, JobQueue) {
+define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQueue) {
     var _this;
-    var painter, width, height, bwidth, bheight,
+    var painter, width, height, map,
         radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
     var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
@@ -14,11 +14,10 @@ define(["painter","player","jobqueue"],function(Painter, Player, JobQueue) {
             g.twidth = 60;
             g.theight = g.twidth/2;
 
-            // +2 to fix seaming problem
-            //map = new Map(bwidth/g.twidth, bheight/g.theight);
-            painter = new Painter();
-            jobqueue = new JobQueue(1000);
+            map = new Map();
             player = new Player("img/castle_might.png");
+            painter = new Painter(map, player);
+            jobqueue = new JobQueue(1000);
             //jobqueue.push(_this.load);
             radius = 2;
             mousedown = false;
@@ -114,7 +113,7 @@ define(["painter","player","jobqueue"],function(Painter, Player, JobQueue) {
                     return false;
                 }, [jobs[i]]);
             }
-            player.draw(width/2-center.x, height/2-center.y);
+            //player.draw(width/2-center.x, height/2-center.y);
             return true;
         },
         drawImage: function(x,y,img) {
