@@ -3,14 +3,11 @@
     baseUrl: "js/",
     dir: "../../clientbuild",
     
-    paths: {
-        "jquery": "lib/require-jquery"
-    },
+    paths: {},
 
     modules: [
         {
-            name: "main",
-            exclude: ["jquery"]
+            name: "main"
         }
     ]
 })

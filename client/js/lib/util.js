@@ -133,6 +133,23 @@ var initMouseScroll = function() {
     }
 }());
 
+var translate = (function()  {
+    var tmp = document.createElement('div'),
+        transform = 'transform',
+        vendors = ['webkit', 'moz', 'ms', 'o'];
+    for (var i in vendors) {
+        var name = '-'+vendors[i]+'-transform';
+        
+        if (tmp.style[name] !== undefined) {
+            transform = name;
+            break;
+        }
+    }
+    return function(elem, x, y) {
+        elem.style[transform] = 'translate('+x+'px,'+y+'px)';
+    };
+})();
+
 // global space
 g = {};
 // taken from detectmobilebrowsers.com October 21, 2012

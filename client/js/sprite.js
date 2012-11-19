@@ -46,7 +46,7 @@ define(function() {
             );
         },
         show: function(x,y) {
-            tween(this.canvas).translate(x+this.x, y+this.y).now();
+            translate(this.canvas, x+this.x, y+this.y);
             this.canvas.style.display = 'block';
         },
         hide: function() {

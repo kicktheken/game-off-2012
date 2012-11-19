@@ -1,4 +1,4 @@
-define(["jquery", "engine"], function($, Engine) {
+define(["engine"],function(Engine) {
     var engine, ctx, capabilities;
     capabilities = [
         "canvas",

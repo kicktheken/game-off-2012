@@ -1,3 +1,4 @@
 build.txt
 deploy.sh
 client/img/*.png
+clientbuild

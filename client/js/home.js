@@ -5,7 +5,7 @@ define([
     "lib/util",
     "lib/log",
     "lib/tinycolor",
-    "lib/transitions"
+    "lib/" + (/\WMSIE\W/.test(navigator.userAgent) ? 'jquery' : 'zepto')
 ],
 function() {
     require(["main"]);
