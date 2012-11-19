@@ -113,9 +113,9 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
         drawTree: function(context,mx,my) {
             var r = map.getTile(mx,my);
             if (r > .8) {
-                var x = (mx-player.mx)*g.twidth/2 + player.width/2,
-                    y = (my-player.my)*g.theight/2 + player.height;
-                trees[Math.floor(r*256*256)%trees.length].draw(context, x-player.x, y-player.y);
+                var x = (mx-player.mx)*g.twidth/2 - player.x,
+                    y = (my-player.my)*g.theight/2 - player.y;
+                trees[Math.floor(r*256*256)%trees.length].draw(context, x, y);
             }
         },
         drawTile: function(context,mx,my,x,y,r) {
