@@ -23,16 +23,6 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
                 });
             });
 
-            spritemap = new Overlay(function() {
-                return new Sprite({
-                    width:      size,
-                    height:     g.spriteheight,
-                    justify:    "center",
-                    z:          0,
-                    background: "black"
-                });
-            });
-
             var treetypes = [];
             // oak
             treetypes.push({
