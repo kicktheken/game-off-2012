@@ -64,9 +64,17 @@ define(["engine"],function(Engine) {
             document.addEventListener('mouseup', function(e) {
                 engine.cursorend();
             });
-
             document.addEventListener('mousemove', function (e) {
                 engine.cursormove(e.clientX, e.clientY);
+            });
+            document.addEventListener('mouseover', function (e) {
+                engine.cursorover(e.clientX, e.clientY);
+            });
+            window.addEventListener('mouseout', function (e) {
+                engine.cursorout();
+            });
+            window.addEventListener('blur', function (e) {
+                engine.cursorout();
             });
             if (/Mac OS/i.test(navigator.userAgent)) { // trackpad scrolling is win
                 var ffVersion = navigator.userAgent.match(/Firefox\/\d+/i);

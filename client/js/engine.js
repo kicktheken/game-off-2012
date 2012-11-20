@@ -99,6 +99,13 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
                 mousedown.ts = ts;
                 _this.scroll(dx, dy);
             }
+            painter.drawCursor(x,y,center.x,center.y,width,height);
+        },
+        cursorover: function(x,y) {
+            painter.drawCursor(x,y,center.x,center.y,width,height);
+        },
+        cursorout: function() {
+            painter.hideCursor();
         },
         // }}}
         load: function() {
