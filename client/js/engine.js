@@ -27,14 +27,14 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
             maxv = 30;
             //log.setCallback(_this.showStatus);
 
-            document.onkeypress = function(e) {
-                switch (e.keyCode) {
+            $(document).keypress(function(e) {
+                switch (e.charCode) {
                     case 105: player.mx--; player.my--; break; //i
                     case 106: player.mx--; player.my++; break; //j
                     case 107: player.mx++; player.my++; break; //k
                     case 108: player.mx++; player.my--; break; //l
                 }
-            };
+            });
             _this.resize();
         },
         // {{{ resize
