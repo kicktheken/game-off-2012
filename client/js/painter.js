@@ -146,10 +146,8 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             return jobs;
         },
         drawCursor: function(x,y,centerx,centery,vwidth,vheight) {
-            x += centerx-vwidth/2;
-            y += centery-vheight/2;
-            var mx = Math.round(x/g.twidth*2),
-                my = Math.round(y/g.theight*2);
+            var mx = Math.round((x+centerx-vwidth/2)/g.twidth*2),
+                my = Math.round((y+centery-vheight/2)/g.theight*2);
                 newx = mx*g.twidth/2 - centerx + vwidth/2;
                 newy = my*g.theight/2 - centery + vheight/2;
             if ((mx+my)%2 !== 0) {
