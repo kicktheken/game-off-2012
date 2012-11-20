@@ -11,7 +11,7 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             player = _player;
             dsize = (g.MOBILE) ? 480 : 640;
             size = dsize + 2;
-            shownqueue = [];
+            shownqueue = new Object();
 
             terrainmap = new Overlay(function() {
                 return new Sprite({
@@ -54,8 +54,8 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             }
         },
         load: function(centerx, centery, vwidth, vheight) {
-            centerx = Math.floor(centerx);
-            centery = Math.floor(centery);
+            centerx = Math.round(centerx);
+            centery = Math.round(centery);
             var x = Math.floor(centerx/dsize + .5), y = Math.floor(centery/dsize + .5),
                 modx = Math.round(centerx + dsize/2)%dsize, mody = Math.round(centery +dsize/2)%dsize;
             if (modx < 0) modx = dsize + modx;
@@ -65,9 +65,10 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
                 maxx = x+Math.ceil((vwidth/2 - dsize + modx)/dsize),
                 maxy = y+Math.ceil((vheight/2 - dsize + mody)/dsize);
             var loadedFunc = function(zone,mx,my) {
-                var x = mx*dsize - Math.round(centerx) + vwidth/2,
-                    y = my*dsize - Math.round(centery) + vheight/2;
-                shownqueue.push(zone);
+                var x = mx*dsize - centerx + vwidth/2,
+                    y = my*dsize - centery + vheight/2;
+                zone.hidden = false;
+                shownqueue[mx+'_'+my] = zone;
                 zone.show(x,y);
             };
             var jobs = [], generateFunc = function(zone,mx,my) {
@@ -86,7 +87,8 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
                                 return function(centerx,centery,vwidth,vheight) {
                                     var x = mx*dsize - Math.round(centerx) + vwidth/2,
                                         y = my*dsize - Math.round(centery) + vheight/2;
-                                    shownqueue.push(zone);
+                                    zone.hidden = false;
+                                    shownqueue[mx+'_'+my] = zone;
                                     zone.show(x,y);
                                 };
                             }
@@ -98,11 +100,16 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
                     };
                 })());
             };
-            for (var i=0; i<shownqueue.length; i++) {
-                shownqueue[i].hide();
+            for (var i in shownqueue) {
+                shownqueue[i].hidden = true;
             }
-            shownqueue = [];
             terrainmap.setZones(col,row,maxx,maxy,loadedFunc,generateFunc);
+            for (var i in shownqueue) {
+                if (shownqueue[i].hidden) {
+                    shownqueue[i].hide();
+                    delete shownqueue[i];
+                }
+            }
             player.draw(vwidth/2 - centerx, vheight/2 - centery);
             _this.drawTree(player.context, player.mx-1, player.my+1);
             _this.drawTree(player.context, player.mx+1, player.my+1);
