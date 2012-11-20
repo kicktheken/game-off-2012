@@ -44,6 +44,7 @@ define(["engine"],function(Engine) {
 
         if (g.MOBILE) {
             $(document).bind('touchstart', function(e) {
+                e.preventDefault();
                 e = e.originalEvent.touches[0];
                 engine.cursorstart(e.pageX, e.pageY);
             });
