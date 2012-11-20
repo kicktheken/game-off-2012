@@ -26,7 +26,8 @@ define(["engine"],function(Engine) {
     ctx = document.createElement('canvas').getContext('2d');
 
     // reference from http://www.html5rocks.com/en/tutorials/canvas/hidpi/
-    g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / getDefault(ctx.webkitBackingStorePixelRatio, 1) : 1;
+    g.BACKSCALE = getDefault(ctx.webkitBackingStorePixelRatio, 1);
+    g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / g.BACKSCALE : 1;
     g.spritewidth = g.spriteheight = 100;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();

@@ -4,16 +4,17 @@ define(function() {
             this.canvas = document.createElement("canvas");
             this.width = args.width;
             this.height = args.height;
-            this.canvas.width =  this.width * g.SCALE;
-            this.canvas.height = this.height * g.SCALE;
+            this.scale = getDefault(args.scale, g.SCALE);
+            this.canvas.width =  this.width * this.scale;
+            this.canvas.height = this.height * this.scale;
             document.body.appendChild(this.canvas);
             this.context = this.canvas.getContext('2d');
             if (args.background) {
                 this.context.fillStyle = args.background;
                 this.context.fillRect(0,0,this.canvas.width,this.canvas.height);
             }
-            if (g.SCALE > 1) {
-                this.context.scale(g.SCALE, g.SCALE);
+            if (this.scale > 1) {
+                this.context.scale(this.scale, this.scale);
                 this.canvas.style.width = this.width + 'px';
                 this.canvas.style.height = this.height + 'px';
             }
@@ -30,7 +31,7 @@ define(function() {
                         this.y -= this.height/2;
                         break;
                     } case "bottom": {
-                        this.x -= Math.floor(this.width/2);
+                        this.x -= this.width/2;
                         this.y -= this.height;
                         break;
                     }

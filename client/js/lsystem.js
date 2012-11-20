@@ -15,7 +15,8 @@ define(["sprite"], function(Sprite) {
                 width:  g.spritewidth,
                 height: g.spriteheight,
                 justify: "bottom",
-                z: 1
+                z: 1,
+                scale: 2/g.BACKSCALE
             });
             this.rules = o.rules;
             this.iterations = o.iterations;

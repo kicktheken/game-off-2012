@@ -10,7 +10,7 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             map = _map;
             player = _player;
             dsize = (g.MOBILE) ? 480 : 640;
-            size = dsize + 1;
+            size = dsize + 2;
             shownqueue = [];
 
             terrainmap = new Overlay(function() {
@@ -54,6 +54,8 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             }
         },
         load: function(centerx, centery, vwidth, vheight) {
+            centerx = Math.floor(centerx);
+            centery = Math.floor(centery);
             var x = Math.floor(centerx/dsize + .5), y = Math.floor(centery/dsize + .5),
                 modx = Math.round(centerx + dsize/2)%dsize, mody = Math.round(centery +dsize/2)%dsize;
             if (modx < 0) modx = dsize + modx;
@@ -105,9 +107,9 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             _this.drawTree(player.context, player.mx-1, player.my+1);
             _this.drawTree(player.context, player.mx+1, player.my+1);
             _this.drawTree(player.context, player.mx, player.my+2);
-            _this.drawTree(player.context, player.mx, player.my+4);
             _this.drawTree(player.context, player.mx-1, player.my+3);
             _this.drawTree(player.context, player.mx+1, player.my+3);
+            _this.drawTree(player.context, player.mx, player.my+4);
             return jobs;
         },
         drawTree: function(context,mx,my) {
