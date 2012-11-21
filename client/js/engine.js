@@ -59,8 +59,9 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
         // {{{ cursor
         cursorstart: function(x,y) {
             cursor.press(x,y);
-            var ret = map.findPath(player.mx,player.my,cursor.mx,cursor.my);
-            log.info('path length: '+ret.length);
+            var path = map.findPath(player.mx,player.my,cursor.mx,cursor.my);
+            log.info('path length: '+path.length);
+            player.setDestination(path);
             scrollevents = [];
         },
         cursorend: function() {

@@ -9,8 +9,8 @@ define(["sprite"], function Cursor(Sprite) {
                 z: 3
             });
             this.map = map;
-            this.cx = 0;
-            this.cy = 0;
+            this.cx = -g.twidth; // hide cursor
+            this.cy = -g.theight;
             this.down = false;
             this.vs = [];
             this.ts = 0;

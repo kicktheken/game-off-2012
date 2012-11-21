@@ -77,7 +77,7 @@ function Map(SimplexNoise, AStar, Tile) {
         findPath: function(startx, starty, endx, endy) {
             var start = _this.getTile(startx,starty),
                 end = _this.getTile(endx,endy);
-            log.info(start+end);
+            log.info(start+' -> '+end);
             if (!start.isPassable() || !end.isPassable()) {
                 return [];
             }
