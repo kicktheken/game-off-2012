@@ -59,12 +59,17 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
         // {{{ cursor
         cursorstart: function(x,y) {
             cursor.press(x,y);
+            var ret = map.findPath(player.mx,player.my,cursor.mx,cursor.my);
+            log.info('path length: '+ret.length);
             scrollevents = [];
         },
         cursorend: function() {
-            var v = cursor.release(), m = v[0], dx = v[1], dy = v[2];
-            for (var k = m; k > 0; k -= deceleration) {
-                scrollevents.push([k/m * dx, k/m * dy]);
+            var vector = cursor.release();
+            if (!vector) {
+                return;
+            }
+            for (var k = vector[0]; k > 0; k -= deceleration) {
+                scrollevents.push([k/vector[0] * vector[1], k/vector[0] * vector[2]]);
             }
             jobqueue.push(0, function() {
                 if (scrollevents.length === 0) {
@@ -103,11 +108,6 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
             }
             cursor.draw(center.x,center.y,width,height);
             return true;
-        },
-        drawImage: function(x,y,img) {
-            img.show(x,y);
-            //context.drawImage(img, x, y);
-            //log.info("load at "+x+" "+y);
         },
         scroll: function(x,y) {
             center.x += x;
