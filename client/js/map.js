@@ -14,8 +14,35 @@ function Map(SimplexNoise, AStar, Tile) {
             _this = this;
             map = {};
             simplex = new SimplexNoise();
-            simplex.d = 32;
-            simplex.s = Math.random() * simplex.d;
+            _this.setupNoise();
+        },
+        setupNoise: function() {
+            // ensure player starts on land
+            function generateNoiseFunction(size) {
+                var rx = Math.random(), ry = Math.random(), rz = Math.random();
+                return function(x,y) {
+                    return simplex.noise3D((x+rx)/size, (y+ry)/size, rz*size);
+                };
+            };
+            var sizes = [32, 16, 8, 4], noises = [];
+            for (var i in sizes) {
+                for (var k=0; k<1000; k++) {
+                    noises[i] = generateNoiseFunction(sizes[i]);
+                    if (noises[i](0,0) > .5) {
+                        break;
+                    }
+                }
+            }
+            simplex.noiseR = function(x,y) {
+                return noises[0](x,y)/2 + noises[1](x,y)/4
+                     + noises[2](x,y)/8 + noises[3](x,y)/16;
+            };
+            for (var k=0; k<1000; k++) {
+                simplex.noiseD = generateNoiseFunction(512);
+                if (simplex.noiseD(0,0) < 0) {
+                    break;
+                }
+            }
         },
         getZoneIterator: function(x,y,maxx,maxy) {
             //log.info([x,y,_maxx,_maxy]);
