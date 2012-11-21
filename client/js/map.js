@@ -28,7 +28,8 @@ function Map(SimplexNoise, AStar, Tile) {
             for (var i in sizes) {
                 for (var k=0; k<1000; k++) {
                     noises[i] = generateNoiseFunction(sizes[i]);
-                    if (noises[i](0,0) > .5) {
+                    var r = noises[i](0,0);
+                    if (r > .1 && r < .3) {
                         break;
                     }
                 }
@@ -39,7 +40,8 @@ function Map(SimplexNoise, AStar, Tile) {
             };
             for (var k=0; k<1000; k++) {
                 simplex.noiseD = generateNoiseFunction(512);
-                if (simplex.noiseD(0,0) < 0) {
+                var r = simplex.noiseD(0,0);
+                if (r > -.1 && r < .1) {
                     break;
                 }
             }
