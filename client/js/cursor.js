@@ -1,5 +1,5 @@
 define(["sprite"], function Cursor(Sprite) {
-    var maxv = 30;
+    var maxv = 20;
     var Cursor = Sprite.extend({
         init: function(map) {
             this._super({
