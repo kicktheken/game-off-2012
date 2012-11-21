@@ -127,11 +127,11 @@ function Painter(Overlay, Sprite, LSystem) {
             return jobs;
         },
         drawTree: function(context,mx,my) {
-            var r = map.getTile(mx,my);
-            if (r > .8) {
+            var tile = map.getTile(mx,my);
+            if (tile.r > .8) {
                 var x = (mx-player.mx)*g.twidth/2 - player.x,
                     y = (my-player.my)*g.theight/2 - player.y;
-                trees[Math.floor(r*256*256)%trees.length].draw(context, x, y);
+                trees[Math.floor(tile.r*256*256)%trees.length].draw(context, x, y);
             }
         },
         drawTile: function(context,mx,my,x,y,r) {
