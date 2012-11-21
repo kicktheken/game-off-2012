@@ -34,14 +34,14 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
             maxv = 30;
             //log.setCallback(_this.showStatus);
 
-            $(document).keypress(function(e) {
+            /*$(document).keypress(function(e) {
                 switch (e.charCode) {
                     case 105: player.mx--; player.my--; break; //i
                     case 106: player.mx--; player.my++; break; //j
                     case 107: player.mx++; player.my++; break; //k
                     case 108: player.mx++; player.my--; break; //l
                 }
-            });
+            });*/
             _this.resize();
         },
         // {{{ resize
@@ -130,9 +130,9 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
             }
             elapsed += res;
             if (ticks % 100 == 0) {
-                //var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
-                //msg += " center "+[center.x,+center.y]+ " showqueue: "+map.showLength();
-                //log.info(msg);
+                var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
+                msg += " center "+[center.x,+center.y];
+                log.info(msg);
                 elapsed = 0;
             }
         }

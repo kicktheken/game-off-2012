@@ -117,14 +117,25 @@ function Painter(Overlay, Sprite, LSystem) {
                     delete shownqueue[i];
                 }
             }
-            player.draw(vwidth/2 - centerx, vheight/2 - centery);
-            _this.drawTree(player.context, player.mx-1, player.my+1);
-            _this.drawTree(player.context, player.mx+1, player.my+1);
-            _this.drawTree(player.context, player.mx, player.my+2);
-            _this.drawTree(player.context, player.mx-1, player.my+3);
-            _this.drawTree(player.context, player.mx+1, player.my+3);
-            _this.drawTree(player.context, player.mx, player.my+4);
+            _this.drawPlayer(centerx,centery,vwidth,vheight);
             return jobs;
+        },
+        drawPlayer: function(centerx,centery,vwidth,vheight) {
+            player.draw(vwidth/2 - centerx, vheight/2 - centery);
+            var tile, iterator = map.getZoneIterator(
+                Math.floor((player.cx-g.spritewidth/2)/g.twidth*2),
+                Math.floor(player.cy/g.theight*2),
+                Math.ceil((player.cx+g.spritewidth/2)/g.twidth*2),
+                Math.ceil((player.cy+g.spriteheight)/g.theight*2)
+            );
+            while (tile = iterator()) {
+                if (tile.isDrawable() && tile.r > .8) {
+                    var x = tile.x*g.twidth/2 - player.cx - player.x,
+                        y = tile.y*g.theight/2 - player.cy - player.y;
+                    trees[Math.floor(tile.r*256*256)%trees.length].draw(player.context, x, y);
+                }
+            }
+
         },
         drawTree: function(context,mx,my) {
             var tile = map.getTile(mx,my);
