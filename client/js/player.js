@@ -1,4 +1,4 @@
-define(["sprite"], function(Sprite) {
+define(["sprite"], function Player(Sprite) {
     return Sprite.extend({
         init: function(imagepath) {
             this._super({

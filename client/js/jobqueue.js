@@ -4,7 +4,7 @@
  *  false: if the job is not done
  *  null: delay execution for this cycle and yield to next job
  */
-define(function() {
+define(function JobQueue() {
     var _this, queues, count, limit, deferred;
     var JobQueue = Class.extend({
         init: function(_limit) {

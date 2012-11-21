@@ -1,6 +1,11 @@
-define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
+define([
+    "overlay",
+    "sprite",
+    "lsystem"
+],
+function Painter(Overlay, Sprite, LSystem) {
     var _this, map, player, terrainmap, rcg = [], trees = [],
-        dsize, size, shownqueue, cursor, drawcursor;
+        dsize, size, shownqueue;
     var Painter = Class.extend({
         init: function(_map, _player) {
             if (typeof _this !== 'undefined') {
@@ -12,31 +17,7 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             dsize = (g.MOBILE) ? 480 : 640;
             size = dsize + 2;
             shownqueue = new Object();
-            var cwidth = g.twidth+6, cheight = g.theight+6;
-            cursor = new Sprite({
-                width:  cwidth,
-                height: cheight,
-                justify:"center",
-                z: 3
-            });
-            cursor.context.translate(3,3);
-            drawcursor = function(context,c1,c2) {
-                context.clearRect(0,0,g.twidth+6,g.theight+6);
-                context.lineWidth = 3;
-                context.strokeStyle = c1;
-                context.fillStyle = c2;
-                context.beginPath();
-                //context.translate(3,3);
-                context.moveTo(g.twidth/2, 0);
-                context.lineTo(g.twidth, g.theight/2);
-                context.lineTo(g.twidth/2, g.theight);
-                context.lineTo(0, g.theight/2);
-                context.closePath();
-                context.stroke();
-                context.fill();
-            };
-            drawcursor(cursor.context, "rgb(100,255,100)", "rgba(0,128,0,.5)");
-            
+
             terrainmap = new Overlay(function() {
                 return new Sprite({
                     width:      size,
@@ -107,8 +88,8 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
                     );
                     return function() {
                         for (var i=0; i<1000; i++) {
-                            var data = iterator();
-                            if (!data) {
+                            var tile = iterator();
+                            if (!tile) {
                                 zone.ready = true;
                                 return function(centerx,centery,vwidth,vheight) {
                                     var x = mx*dsize - Math.round(centerx) + vwidth/2,
@@ -118,8 +99,8 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
                                     zone.show(x,y);
                                 };
                             }
-                            if ((data[0]+data[1]) % 2 === 0) {
-                                _this.drawTile.apply(_this, [zone.context,mx,my].concat(data));
+                            if (tile.isDrawable()) {
+                                _this.drawTile.apply(_this, [zone.context,mx,my].concat(tile.getData()));
                             }
                         }
                         return false;
@@ -144,40 +125,6 @@ define(["overlay", "sprite", "lsystem"],function(Overlay, Sprite, LSystem) {
             _this.drawTree(player.context, player.mx+1, player.my+3);
             _this.drawTree(player.context, player.mx, player.my+4);
             return jobs;
-        },
-        drawCursor: function(x,y,centerx,centery,vwidth,vheight) {
-            var mx = Math.round((x+centerx-vwidth/2)/g.twidth*2),
-                my = Math.round((y+centery-vheight/2)/g.theight*2);
-                newx = mx*g.twidth/2 - centerx + vwidth/2;
-                newy = my*g.theight/2 - centery + vheight/2;
-            if ((mx+my)%2 !== 0) {
-                if ((y-newy)*g.theight > (x-newx)*g.twidth) {
-                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
-                        my++;
-                    } else {
-                        mx--;
-                    }
-                } else {
-                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
-                        mx++;
-                    } else {
-                        my--;
-                    }
-                }
-                newx = mx*g.twidth/2 - centerx + vwidth/2;
-                newy = my*g.theight/2 - centery + vheight/2;
-            }
-            var r = map.getTile(mx,my);
-            if (r > .8 || r < .5) {
-                drawcursor(cursor.context, "rgb(255,0,0)", "rgba(128,0,0,.5)");
-            } else {
-                drawcursor(cursor.context, "rgb(100,255,100)", "rgba(0,128,0,.5)");
-            }
-            
-            cursor.show(newx,newy);
-        },
-        hideCursor: function() {
-            cursor.hide();
         },
         drawTree: function(context,mx,my) {
             var r = map.getTile(mx,my);

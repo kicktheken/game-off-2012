@@ -1,4 +1,4 @@
-define(["sprite"], function(Sprite) {
+define(["sprite"], function LSystem(Sprite) {
     var State = function(x,y,d,angle,i) {
         this.x = x;
         this.y = y;

@@ -1,4 +1,4 @@
-define(function() {
+define(function Overlay() {
     return Class.extend({
         init: function(initfunc) {
             this.omap = {};

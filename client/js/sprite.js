@@ -1,4 +1,4 @@
-define(function() {
+define(function Sprite() {
     return Class.extend({
         init: function(args) {
             this.canvas = document.createElement("canvas");

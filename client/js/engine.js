@@ -1,8 +1,15 @@
 // vim: set et ts=4 sw=4 fdm=marker:
-define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQueue) {
+define([
+    "map",
+    "painter",
+    "player",
+    "jobqueue",
+    "cursor"
+],
+function Engine(Map, Painter, Player, JobQueue, Cursor) {
     var _this;
     var painter, width, height, map,
-        radius, save, saves = [], center, mousedown, vs, scrollevents = [], player;
+        radius, save, saves = [], center, cursor, vs, scrollevents = [], player;
     var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
@@ -20,7 +27,7 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
             jobqueue = new JobQueue(1000);
             //jobqueue.push(_this.load);
             radius = 2;
-            mousedown = false;
+            cursor = new Cursor(map);
             vs = [];
             center = {x:0, y:0};
             deceleration = 1;
@@ -51,30 +58,13 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
         // }}}
         // {{{ cursor
         cursorstart: function(x,y) {
-            mousedown = {x:x,y:y,ts:g.ts()};
+            cursor.press(x,y);
             scrollevents = [];
         },
         cursorend: function() {
-            mousedown = false;
-            var dx, dy, dt, v;
-            if (vs.length === 0) {
-                return;
-            } else if (vs.length === 1) {
-                dx = vs[0].dx;
-                dy = vs[0].dy;
-                dt = vs[0].dt;
-            } else { // look at the last two to resolve the (backwards glitch)
-                var a = anglediff(vs[0].dx,vs[0].dy,vs[1].dx,vs[1].dy),
-                    i = (Math.abs(a) > Math.PI/2) ? 1 : 0;
-                dx = vs[i].dx;
-                dy = vs[i].dy;
-                dt = vs[i].dt;
-            }
-            v = Math.sqrt(dx*dx+dy*dy) / dt * 1000 / 60;
-            if (v > maxv) v = maxv;
-            log.info(v);
-            for (var k = v; k > 0; k -= deceleration) {
-                scrollevents.push([k/v * dx, k/v * dy]);
+            var v = cursor.release(), m = v[0], dx = v[1], dy = v[2];
+            for (var k = m; k > 0; k -= deceleration) {
+                scrollevents.push([k/m * dx, k/m * dy]);
             }
             jobqueue.push(0, function() {
                 if (scrollevents.length === 0) {
@@ -84,28 +74,19 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
                 _this.scroll(se[0],se[1]);
                 return (scrollevents.length === 0) ? true : null;
             });
-            vs = [];
         },
         cursormove: function(x,y) {
-            if (mousedown) {
-                var dx = mousedown.x - x,
-                    dy = mousedown.y - y,
-                    ts = g.ts();
-                if (ts > mousedown.ts) {
-                    vs.unshift({dx:dx,dy:dy,dt:ts-mousedown.ts});
-                }
-                mousedown.x = x;
-                mousedown.y = y;
-                mousedown.ts = ts;
-                _this.scroll(dx, dy);
+            var dcoords = cursor.move(x,y);
+            if (cursor.isDown()) {
+                _this.scroll(dcoords[0], dcoords[1]);
             }
-            painter.drawCursor(x,y,center.x,center.y,width,height);
+            cursor.draw(center.x,center.y,width,height);
         },
         cursorover: function(x,y) {
-            painter.drawCursor(x,y,center.x,center.y,width,height);
+            cursor.draw(center.x,center.y,width,height);
         },
         cursorout: function() {
-            painter.hideCursor();
+            cursor.hide();
         },
         // }}}
         load: function() {
@@ -120,7 +101,7 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
                     return false;
                 }, [jobs[i]]);
             }
-            //player.draw(width/2-center.x, height/2-center.y);
+            cursor.draw(center.x,center.y,width,height);
             return true;
         },
         drawImage: function(x,y,img) {
@@ -152,20 +133,6 @@ define(["map","painter","player","jobqueue"],function(Map, Painter, Player, JobQ
             }
         }
     });
-
-    // returns 0 <= x < 2*PI
-    function cart2rad(x,y) {
-        if (x === 0) {
-            return (y === 0) ? 0 : (y > 0) ? Math.PI/2 : 3*Math.PI/2;
-        }
-        return (x > 0) ? Math.atan(y/x) : Math.PI+Math.atan(y/x);
-    }
-
-    // return -PI <= x < PI
-    function anglediff(x1,y1,x2,y2) {
-        var rad = cart2rad(x2,y2) - cart2rad(x1,y1);
-        return (rad < -Math.PI) ? rad+Math.PI : (rad >= Math.PI) ? rad-Math.PI : rad;
-    }
 
     return Engine;
 });
