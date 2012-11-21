@@ -59,6 +59,35 @@ define(["sprite"], function Cursor(Sprite) {
         isDown: function() {
             return this.down;
         },
+        setCoords: function(centerx,centery,vwidth,vheight) {
+            var x = this.cx,
+                y = this.cy,
+                mx = Math.round((x+centerx-vwidth/2)/g.twidth*2),
+                my = Math.round((y+centery-vheight/2)/g.theight*2),
+                newx = mx*g.twidth/2 - centerx + vwidth/2,
+                newy = my*g.theight/2 - centery + vheight/2;
+            if ((mx+my)%2 !== 0) {
+                if ((y-newy)*g.theight > (x-newx)*g.twidth) {
+                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
+                        my++;
+                    } else {
+                        mx--;
+                    }
+                } else {
+                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
+                        mx++;
+                    } else {
+                        my--;
+                    }
+                }
+                newx = mx*g.twidth/2 - centerx + vwidth/2;
+                newy = my*g.theight/2 - centery + vheight/2;
+            }
+            this.mx = mx;
+            this.my = my;
+            this.cx = newx;
+            this.cy = newy;
+        },
         drawCursor: function(passable) {
             var context = this.context, c1, c2;
             if (passable) {
@@ -82,32 +111,10 @@ define(["sprite"], function Cursor(Sprite) {
             context.fill();
         },
         draw: function(centerx,centery,vwidth,vheight) {
-            var x = this.cx,
-                y = this.cy,
-                mx = Math.round((x+centerx-vwidth/2)/g.twidth*2),
-                my = Math.round((y+centery-vheight/2)/g.theight*2);
-                newx = mx*g.twidth/2 - centerx + vwidth/2;
-                newy = my*g.theight/2 - centery + vheight/2;
-            if ((mx+my)%2 !== 0) {
-                if ((y-newy)*g.theight > (x-newx)*g.twidth) {
-                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
-                        my++;
-                    } else {
-                        mx--;
-                    }
-                } else {
-                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
-                        mx++;
-                    } else {
-                        my--;
-                    }
-                }
-                newx = mx*g.twidth/2 - centerx + vwidth/2;
-                newy = my*g.theight/2 - centery + vheight/2;
-            }
-            var tile = this.map.getTile(mx,my);
+            this.setCoords(centerx,centery,vwidth,vheight);
+            var tile = this.map.getTile(this.mx,this.my);
             this.drawCursor(tile.isPassable());
-            this.show(newx,newy);
+            this.show(this.cx,this.cy);
         }
     });
 
