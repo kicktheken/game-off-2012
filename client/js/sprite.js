@@ -52,6 +52,9 @@ define(function Sprite() {
         },
         hide: function() {
             this.canvas.style.display = 'none';
+        },
+        isHidden: function() {
+            return this.canvas.style.display === 'none';
         }
     });
 });

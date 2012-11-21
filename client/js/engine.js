@@ -106,12 +106,15 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
                     return false;
                 }, [jobs[i]]);
             }
-            cursor.draw(center.x,center.y,width,height);
+            if (!cursor.isHidden()) {
+                cursor.draw(center.x,center.y,width,height);
+            }
             return true;
         },
         scroll: function(x,y) {
             center.x += x;
             center.y += y;
+            cursor.hide();
             jobqueue.push(0, _this.load);
         },
         run: function() {
