@@ -5,6 +5,7 @@
 define(["binheap"], function AStar(BinaryHeap) {
     return Class.extend({
         init: function() {
+            this.heuristic = this.euclidean;
             this.visitors = {};
             this.searchlimit = 10000;
         },
@@ -22,9 +23,7 @@ define(["binheap"], function AStar(BinaryHeap) {
                 return node.f;
             });
         },
-        search: function(start, end, heuristic) {
-            heuristic = heuristic || this.manhattan;
-
+        search: function(start, end) {
             var openHeap = this.heap(), count = 0;
 
             openHeap.push(start);
@@ -64,7 +63,7 @@ define(["binheap"], function AStar(BinaryHeap) {
 
                     // The g score is the shortest distance from start to current node.
                     // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-                    var gScore = currentNode.g + neighbor.cost;
+                    var gScore = currentNode.g + neighbor.cost * this.heuristic(currentNode.pos, neighbor.pos);
                     var beenVisited = neighbor.visited;
 
                     if(!beenVisited || gScore < neighbor.g) {
@@ -73,7 +72,7 @@ define(["binheap"], function AStar(BinaryHeap) {
                         // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
                         neighbor.visited = true;
                         neighbor.parent = currentNode;
-                        neighbor.h = neighbor.h || heuristic(neighbor.pos, end.pos);
+                        neighbor.h = neighbor.h || this.heuristic(neighbor.pos, end.pos);
                         neighbor.g = gScore;
                         neighbor.f = neighbor.g + neighbor.h;
 
@@ -96,15 +95,25 @@ define(["binheap"], function AStar(BinaryHeap) {
             this.reset();
             return [];
         },
-        manhattan: function(pos0, pos1) {
-            // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
-
-            var d1 = Math.abs (pos1.x - pos0.x);
-            var d2 = Math.abs (pos1.y - pos0.y);
-            return d1 + d2;
-        },
         neighbors: function(node) {
             throw "need to implement neighbors function";
+        },
+
+        // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+        manhattan: function(p0, p1) {
+            var dx = p1.x - p0.x,
+                dy = p1.y - p0.y;
+            return Math.abs(dx) + Math.abs(dy);
+        },
+        diagonal: function(p0, p1) {
+            var dx = p1.x - p0.x,
+                dy = p1.y - p0.y;
+            return Math.max(Math.abs(dx), Math.abs(dy));
+        },
+        euclidean: function(p0, p1) {
+            var dx = p1.x - p0.x,
+                dy = p1.y - p0.y;
+            return Math.sqrt(dx * dx + dy * dy);
         }
     });
 });

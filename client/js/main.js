@@ -31,6 +31,7 @@ define(["engine"],function(Engine) {
     g.spritewidth = g.spriteheight = 100;
     var getparams = window.location.search.replace("?","");
     var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
+    log.info("seed: "+rng.args);
     Math.random = rng.fract53;
     ctx = null;
 
