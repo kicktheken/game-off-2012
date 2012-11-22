@@ -23,7 +23,39 @@ define(["sprite"], function Player(Sprite) {
             this.cx = 0;
             this.cy = 0;
             this.dest = [];
-            this.srcx = (13*96)+16;
+            this.framems = 50;
+            this.anim = {
+                idle: {
+                    S:  {start:0, frames:1},
+                    SE: {start:1, frames:1},
+                    E:  {start:2, frames:1},
+                    NE: {start:3, frames:1},
+                    N:  {start:4, frames:1}
+                },
+                moving: {
+                    S:  {start:5, frames:8},
+                    SE: {start:13, frames:8},
+                    E:  {start:21, frames:8},
+                    NE: {start:29, frames:8},
+                    N:  {start:37, frames:8}
+                }
+            };
+            this.orientation = 'SE';
+            this.flipped = false;
+            this.setSrcX('idle');
+        },
+        setSrcX: function(actiontype) {
+            var o = this.orientation, anim;
+            if (o.search('W') >= 0) {
+                if (!this.flipped) {
+                    this.flip();
+                }
+                o = o.replace('W','E');
+            } else if (this.flipped && o.search('E') >= 0) {
+                this.flip();
+            }
+            anim = this.anim[actiontype][o];
+            this.srcx = (anim.start+(Math.floor(this.ms/this.framems)%anim.frames))*96+16;
         },
         draw: function(x,y) {
             if (this.ready) {
@@ -34,6 +66,7 @@ define(["sprite"], function Player(Sprite) {
                     this.srcx,0,64,64,
                     0,0,64,64
                 );
+                var actiontype = 'idle';
                 if (this.dest.length > 0) {
                     var tile = this.dest[0],
                         destx = tile.x*g.twidth/2,
@@ -46,17 +79,48 @@ define(["sprite"], function Player(Sprite) {
                         this.dest.shift();
                     } else {
                         var dx = destx-this.cx, dy = desty-this.cy;
-                        this.cx += (dx) ? dx / Math.abs(dx) * 2 : 0;
-                        this.cy += (dy) ? dy / Math.abs(dy) : 0;
+                        if (dx > 0) {
+                            if (dy > 0) {
+                                this.orientation = 'SE';
+                                this.cx += 2;
+                                this.cy += 1;
+                            } else if (dy < 0) {
+                                this.orientation = 'NE';
+                                this.cx += 2;
+                                this.cy -= 1;
+                            } else {
+                                this.orientation = 'E';
+                                this.cx += 2;
+                            }
+                        } else if (dx < 0) {
+                            if (dy > 0) {
+                                this.orientation = 'SW';
+                                this.cx -= 2;
+                                this.cy += 1;
+                            } else if (dy < 0) {
+                                this.orientation = 'NW';
+                                this.cx -= 2;
+                                this.cy -= 1;
+                            } else {
+                                this.orientation = 'W';
+                                this.cx -= 2;
+                            }
+                        } else {
+                            if (dy > 0) {
+                                this.orientation = 'S';
+                                this.cy += 1;
+                            } else if (dy < 0) {
+                                this.orientation = 'N';
+                                this.cy -= 1;
+                            }
+                        }
                     }
+                    actiontype = 'moving';
                 }
-                //log.info([this.cx,this.cy]);
-                //log.info([this.mx*g.twidth/2,this.my*g.theight/2]);
-                //this.show(x+this.mx*g.twidth/2, y+this.my*g.theight/2);
                 this.show(x+this.cx, y+this.cy);
                 this.ms += ts - this.ts;
                 this.ts = ts;
-                this.srcx = (13+(Math.floor((this.ms)/50)%8))*96+16;
+                this.setSrcX(actiontype);
             }
         },
         setDestination: function(dest) {

@@ -55,6 +55,11 @@ define(function Sprite() {
         },
         isHidden: function() {
             return this.canvas.style.display === 'none';
+        },
+        flip: function() { // flip image horzontally
+            this.context.translate(this.width, 0);
+            this.context.scale(-1,1);
+            this.flipped = !this.flipped;
         }
     });
 });
