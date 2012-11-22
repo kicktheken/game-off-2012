@@ -128,12 +128,19 @@ function Painter(Overlay, Sprite, LSystem) {
                 Math.ceil((player.cx+g.spritewidth/2)/g.twidth*2),
                 Math.ceil((player.cy+g.spriteheight)/g.theight*2)
             );
+            var flipped = player.flipped;
+            if (flipped) {
+                player.flip();
+            }
             while (tile = iterator()) {
                 if (tile.isDrawable() && tile.r > .8) {
                     var x = tile.x*g.twidth/2 - player.cx - player.x,
                         y = tile.y*g.theight/2 - player.cy - player.y;
                     trees[Math.floor(tile.r*256*256)%trees.length].draw(player.context, x, y);
                 }
+            }
+            if (flipped) {
+                player.flip();
             }
 
         },
