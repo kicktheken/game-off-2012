@@ -51,11 +51,12 @@ define(function Camera() {
                     y >= -size/2 && y <= this.height+size/2);
         },
         getZoneBounds: function(dsize) {
-            var x = Math.round(this.x), y = Math.round(this.y), modx, mody;
-            x = Math.floor(x/dsize + .5);
-            y = Math.floor(y/dsize + .5);
-            modx = Math.round(x + dsize/2)%dsize;
-            mody = Math.round(y +dsize/2)%dsize;
+            var centerx = Math.round(this.x),
+                centery = Math.round(this.y),
+                x = Math.floor(centerx/dsize + .5),
+                y = Math.floor(centery/dsize + .5),
+                modx = Math.round(centerx + dsize/2)%dsize,
+                mody = Math.round(centery +dsize/2)%dsize;
             if (modx < 0) modx = dsize + modx;
             if (mody < 0) mody = dsize + mody;
             return {
