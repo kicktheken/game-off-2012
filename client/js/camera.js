@@ -22,8 +22,8 @@ define(function Camera() {
         // conversions helpers
         cursorCenter: function() {
             return {
-                x: this.width/2 - this.x,
-                y: this.height/2 - this.y
+                x: this.width/2 - Math.round(this.x),
+                y: this.height/2 - Math.round(this.y)
             };
         },
         cursor2map: function(x,y) {
