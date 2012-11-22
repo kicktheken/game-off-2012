@@ -129,6 +129,12 @@ define(["sprite"], function Player(Sprite) {
             } else if (dest.length > 0) {
                 this.dest = [this.dest[0]].concat(dest);
             }
+        },
+        getMapCoords: function() {
+            if (this.dest.length > 0) {
+                return [this.dest[0].x,this.dest[0].y];
+            }
+            return [this.mx,this.my];
         }
     });
 });

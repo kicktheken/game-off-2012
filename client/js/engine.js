@@ -59,7 +59,8 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
         // {{{ cursor
         cursorstart: function(x,y) {
             cursor.press(x,y);
-            var path = map.findPath(player.mx,player.my,cursor.mx,cursor.my);
+            var ma = player.getMapCoords();
+                path = map.findPath(ma[0],ma[1],cursor.mx,cursor.my);
             log.info('path length: '+path.length);
             player.setDestination(path);
             scrollevents = [];
