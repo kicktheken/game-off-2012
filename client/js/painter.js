@@ -5,7 +5,7 @@ define([
 ],
 function Painter(Zone, Sprite, LSystem) {
     var _this, zmap, player, rcg = [], trees = [],
-        dsize, size, shownqueue;
+        dsize, shownqueue;
     var Painter = Class.extend({
         init: function(_player) {
             if (typeof _this !== 'undefined') {
@@ -84,9 +84,22 @@ function Painter(Zone, Sprite, LSystem) {
             shownqueue[zone] = zone;
         },
         drawPlayer: function() {
+            var iterator = g.Map.getCircleIterator(player.mx,player.my,10), tile, updatedZones = {};
+            while (tile = iterator()) {
+                if (!tile.isVisible()) {
+                    for (var i in tile.zones) {
+                        var zone = tile.zones[i];
+                        updatedZones[zone] = zone;
+                    }
+                    tile.visible = true;
+                }
+            }
+            for (var i in updatedZones) {
+                updatedZones[i].forceLoad();
+            }
             var cpos = g.Camera.cursorCenter();
             player.draw(cpos.x, cpos.y);
-            var tile, iterator = g.Map.getZoneIterator(
+            iterator = g.Map.getZoneIterator(
                 Math.floor((player.cx-g.spritewidth/2)/g.twidth*2),
                 Math.floor(player.cy/g.theight*2),
                 Math.ceil((player.cx+g.spritewidth/2)/g.twidth*2),

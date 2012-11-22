@@ -9,6 +9,7 @@ define(function Tile() {
             this.visible = false;
             this.pos = {x:x,y:y};
             this.reset();
+            this.zones = new Array(4);
         },
         reset: function() { // for astar
             this.f = 0;
@@ -20,7 +21,7 @@ define(function Tile() {
             this.parent = null;
         },
         isDrawable: function() {
-            return (this.x+this.y) % 2 === 0;
+            return this.visible && (this.x+this.y) % 2 === 0;
         },
         isPassable: function() {
             return (this.r >= .5 && this.r <= .8);
@@ -30,6 +31,15 @@ define(function Tile() {
         },
         getData: function() {
             return [this.x,this.y,this.r];
+        },
+        addZone: function(zone) { // denote a zone has visited this tile
+            var i;
+            for (i = 0; i < this.zones.length; i++) {
+                if (this.zones[i] === zone) {
+                    return;
+                }
+            }
+            this.zones[i] = zone;
         },
         toString: function() {
             return this.x+','+this.y;

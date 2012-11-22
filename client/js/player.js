@@ -135,6 +135,9 @@ define(["sprite"], function Player(Sprite) {
                 return [this.dest[0].x,this.dest[0].y];
             }
             return [this.mx,this.my];
+        },
+        toString: function() {
+            return 'player('+this.mx+','+this.my+')';
         }
     });
 });

@@ -81,7 +81,7 @@ function Map(SimplexNoise, AStar, Tile) {
                         }
                         col = x-radius;
                     }
-                    var dist = Math.sqrt(col*col+row*row);
+                    var dist = Math.sqrt((col-x)*(col-x)+(row-y)*(row-y));
                     if (radius >= dist) {
                         var ret = _this.getTile(col,row);
                         col++;

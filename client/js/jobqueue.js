@@ -75,6 +75,9 @@ define(function JobQueue() {
             } while ((elapsed = (g.ts()-ts)) <= 10);
             requeueDeferred();
             return elapsed;
+        },
+        toString: function() {
+            return 'jobqueue('+[queues[0].length,queues[1].length,queues[2].length]+')';
         }
     });
 

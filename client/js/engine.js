@@ -119,8 +119,8 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
             }
             elapsed += res;
             if (ticks % 100 == 0) {
-                var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
-                msg += " "+camera;
+                var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " "+jobqueue;
+                msg += " "+camera+" "+player;
                 log.info(msg);
                 elapsed = 0;
             }

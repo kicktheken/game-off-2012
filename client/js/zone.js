@@ -18,67 +18,90 @@ define(["sprite"],function Zone(Sprite) {
                 Math.ceil((2*zx+1)*dsize/g.twidth),
                 Math.ceil((2*zy+1)*dsize/g.theight + g.spriteheight/g.theight)
             ];
-            log.info(this.mapbounds);
-            return;
-            this.ybuffers = {};
-            var maxy = this.mapbounds[3];
-            for (my = this.mapbounds[1]; my < maxy; my++) {
-                this.ybuffers[my] = new Sprite({
-                    width:  this.size,
-                    height: g.spriteheight+g.theight/2,
-                    justify:'center',
-                    standalone: true
-                });
-            }
+            this.buffer = new Sprite({
+                width:      this.size,
+                height:     this.size,
+                justify:    'center',
+                z:          0,
+                background: 'black',
+                standalone: true
+            });
             this.hidden = false;
-            this.ready = false;
+            this.loaded = false;
+            this.job = null;
             this.iterator = null;
         },
         toString: function() {
             return 'zone('+this.zx+','+this.zy+')';
         },
+        forceLoad: function() {
+            this.loaded = false;
+            if (this.job) {
+                this.resetIterator();
+            }
+        },
         load: function() {
-            if (this.ready) {
-                return this.show();
-            } else if (this.iterator) {
+            this.show();
+            if (this.job || this.loaded) {
                 return;
             }
-            var iterator = g.Map.getZoneIterator.apply(this.map,this.mapbounds),
-                dsize = this.dsize, size = this.size, zx = this.zx, zy = this.zy,
-                context = this.context, _this = this;
-            this.iterator = function() {
+            return this.getJob();
+        },
+        resetIterator: function() {
+            this.buffer.context.clearRect(0,0,this.width,this.height);
+            this.iterator = g.Map.getZoneIterator.apply(null,this.mapbounds);
+
+        },
+        getJob: function() {
+            var dsize = this.dsize, size = this.size, zx = this.zx, zy = this.zy,
+                context = this.buffer.context, _this = this;
+            this.resetIterator();
+            this.job = function() {
                 for (var i=0; i<1000; i++) {
-                    var tile = iterator();
+                    var tile = _this.iterator();
                     if (!tile) {
                         if (g.Camera.isZoneVisible(dsize,size,zx,zy)) {
+                            _this.swapBuffer();
                             apply(_this,'show');
                         } else {
                             apply(_this,'hide');
                         }
-                        _this.ready = true;
+                        _this.loaded = true;
                         _this.iterator = null;
+                        _this.job = null;
                         return true;
                     }
                     if (tile.isDrawable()) {
                         g.Painter.drawTile(
-                            //this.ybuffers[tile.y],
                             context,
                             tile.x*g.twidth/2-dsize*zx+size/2,
-                            //g.spriteheight,
                             tile.y*g.theight/2-dsize*zy+size/2,
                             tile.r
-                        );
+                        )
+                    } else {
+                        // don't count undrawn tiles
+                        i--;
                     }
+                    tile.addZone(_this);
                 }
                 return false;
             };
-            return this.iterator;
+            return this.job;
         },
         show: function() {
             g.Painter.addShown(this);
             var cpos = g.Camera.zone2cursor(this.dsize,this.zx,this.zy);
             this._super(cpos.x,cpos.y);
             this.hidden = false;
+        },
+        swapBuffer: function() {
+            var canvas = this.canvas, context = this.context;
+            this.canvas = this.buffer.canvas;
+            this.context = this.buffer.context;
+            this.buffer.canvas = canvas;
+            this.buffer.context = context;
+            document.body.removeChild(canvas);
+            document.body.appendChild(this.canvas);
         }
     });
 });
