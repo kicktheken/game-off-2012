@@ -1,32 +1,22 @@
 define([
-    "overlay",
+    "zone",
     "sprite",
     "lsystem"
 ],
-function Painter(Overlay, Sprite, LSystem) {
-    var _this, map, player, terrainmap, rcg = [], trees = [],
+function Painter(Zone, Sprite, LSystem) {
+    var _this, zmap, player, rcg = [], trees = [],
         dsize, size, shownqueue;
     var Painter = Class.extend({
-        init: function(_map, _player) {
+        init: function(_player) {
             if (typeof _this !== 'undefined') {
                 throw "Painter is a singleton and cannot be initialized more than once";
             }
             _this = this;
-            map = _map;
+            g['Painter'] = this;
             player = _player;
+            zmap = new Object();
             dsize = (g.MOBILE) ? 480 : 640;
-            size = dsize + 2;
             shownqueue = new Object();
-
-            terrainmap = new Overlay(function() {
-                return new Sprite({
-                    width:      size,
-                    height:     size,
-                    justify:    "center",
-                    z:          0,
-                    background: "black"
-                });
-            });
             _this.initTrees();
         },
         initTrees: function() {
@@ -60,69 +50,43 @@ function Painter(Overlay, Sprite, LSystem) {
                 }
             }
         },
-        load: function(centerx, centery, vwidth, vheight) {
-            centerx = Math.round(centerx);
-            centery = Math.round(centery);
-            var x = Math.floor(centerx/dsize + .5), y = Math.floor(centery/dsize + .5),
-                modx = Math.round(centerx + dsize/2)%dsize, mody = Math.round(centery +dsize/2)%dsize;
-            if (modx < 0) modx = dsize + modx;
-            if (mody < 0) mody = dsize + mody;
-            var col = x-Math.ceil((vwidth/2 - modx)/dsize),
-                row = y-Math.ceil((vheight/2 - mody)/dsize),
-                maxx = x+Math.ceil((vwidth/2 - dsize + modx)/dsize),
-                maxy = y+Math.ceil((vheight/2 - dsize + mody)/dsize);
-            var loadedFunc = function(zone,mx,my) {
-                var x = mx*dsize - centerx + vwidth/2,
-                    y = my*dsize - centery + vheight/2;
-                zone.hidden = false;
-                shownqueue[mx+'_'+my] = zone;
-                zone.show(x,y);
-            };
-            var jobs = [], generateFunc = function(zone,mx,my) {
-                jobs.push((function() {
-                    var iterator = map.getZoneIterator(
-                        Math.floor((2*mx-1)*dsize/g.twidth),
-                        Math.floor((2*my-1)*dsize/g.theight),
-                        Math.ceil((2*mx+1)*dsize/g.twidth),
-                        Math.ceil((2*my+1)*dsize/g.theight + g.spriteheight/g.theight)
-                    );
-                    return function() {
-                        for (var i=0; i<1000; i++) {
-                            var tile = iterator();
-                            if (!tile) {
-                                zone.ready = true;
-                                return function(centerx,centery,vwidth,vheight) {
-                                    var x = mx*dsize - Math.round(centerx) + vwidth/2,
-                                        y = my*dsize - Math.round(centery) + vheight/2;
-                                    zone.hidden = false;
-                                    shownqueue[mx+'_'+my] = zone;
-                                    zone.show(x,y);
-                                };
-                            }
-                            if (tile.isDrawable()) {
-                                _this.drawTile.apply(_this, [zone.context,mx,my].concat(tile.getData()));
-                            }
-                        }
-                        return false;
-                    };
-                })());
-            };
+        load: function() {
+            var jobs = [], bounds = g.Camera.getZoneBounds(dsize);
             for (var i in shownqueue) {
                 shownqueue[i].hidden = true;
             }
-            terrainmap.setZones(col,row,maxx,maxy,loadedFunc,generateFunc);
+            for (var zy = bounds.row; zy <= bounds.maxy; zy++) {
+                for (var zx = bounds.col; zx <= bounds.maxx; zx++) {
+                    if (zmap[zy] === undefined) {
+                        zmap[zy] = new Object();
+                    }
+                    var zone = zmap[zy][zx];
+                    if (zone === undefined) {
+                        zone = new Zone(dsize,zx,zy);
+                        zmap[zy][zx] = zone;
+                    }
+                    var job = zone.load();
+                    if (job) {
+                        jobs.push(job);
+                    }
+                }
+            }
             for (var i in shownqueue) {
                 if (shownqueue[i].hidden) {
                     shownqueue[i].hide();
                     delete shownqueue[i];
                 }
             }
-            _this.drawPlayer(centerx,centery,vwidth,vheight);
+            _this.drawPlayer();
             return jobs;
         },
-        drawPlayer: function(centerx,centery,vwidth,vheight) {
-            player.draw(vwidth/2 - centerx, vheight/2 - centery);
-            var tile, iterator = map.getZoneIterator(
+        addShown: function(zone) {
+            shownqueue[zone] = zone;
+        },
+        drawPlayer: function() {
+            var cpos = g.Camera.cursorCenter();
+            player.draw(cpos.x, cpos.y);
+            var tile, iterator = g.Map.getZoneIterator(
                 Math.floor((player.cx-g.spritewidth/2)/g.twidth*2),
                 Math.floor(player.cy/g.theight*2),
                 Math.ceil((player.cx+g.spritewidth/2)/g.twidth*2),
@@ -144,38 +108,28 @@ function Painter(Overlay, Sprite, LSystem) {
             }
 
         },
-        drawTree: function(context,mx,my) {
-            var tile = map.getTile(mx,my);
-            if (tile.r > .8) {
-                var x = (mx-player.mx)*g.twidth/2 - player.x,
-                    y = (my-player.my)*g.theight/2 - player.y;
-                trees[Math.floor(tile.r*256*256)%trees.length].draw(context, x, y);
-            }
-        },
-        drawTile: function(context,mx,my,x,y,r) {
-            var xpos, ypos, c, i;
-            xpos = x*g.twidth/2 - dsize*mx + size/2;
-            ypos = y*g.theight/2 - dsize*my + size/2;
+        drawTile: function(context,x,y,r) {
+            var c, i, h;
 
             // set color
-            var h = r*rcg.length;
+            h = r*rcg.length;
             i = Math.floor(h);
             c = rcg[i](h-i);
             context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
 
             // draw on context
             context.beginPath();
-            context.moveTo(xpos, ypos + g.theight/2);
-            context.lineTo(xpos + g.twidth/2, ypos);
-            context.lineTo(xpos, ypos - g.theight/2);
-            context.lineTo(xpos - g.twidth/2, ypos);
+            context.moveTo(x, y + g.theight/2);
+            context.lineTo(x + g.twidth/2, y);
+            context.lineTo(x, y - g.theight/2);
+            context.lineTo(x - g.twidth/2, y);
             context.closePath();
             context.stroke();
             context.fill();
 
             // draw tree
             if (r > .8) {
-                trees[Math.floor(r*256*256)%trees.length].draw(context, xpos, ypos);
+                trees[Math.floor(r*256*256)%trees.length].draw(context, x, y);
             }
         }
     });

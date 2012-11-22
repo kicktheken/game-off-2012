@@ -7,7 +7,9 @@ define(function Sprite() {
             this.scale = getDefault(args.scale, g.SCALE);
             this.canvas.width =  this.width * this.scale;
             this.canvas.height = this.height * this.scale;
-            document.body.appendChild(this.canvas);
+            if (!args.standalone) {
+                document.body.appendChild(this.canvas);
+            }
             this.context = this.canvas.getContext('2d');
             if (args.background) {
                 this.context.fillStyle = args.background;

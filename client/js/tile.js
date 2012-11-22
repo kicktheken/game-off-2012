@@ -6,6 +6,7 @@ define(function Tile() {
             this.r = Math.pow((r+1)/2, 1+d);
             this.x = x;
             this.y = y;
+            this.visible = false;
             this.pos = {x:x,y:y};
             this.reset();
         },
@@ -23,6 +24,9 @@ define(function Tile() {
         },
         isPassable: function() {
             return (this.r >= .5 && this.r <= .8);
+        },
+        isVisible: function() {
+            return this.visible;
         },
         getData: function() {
             return [this.x,this.y,this.r];

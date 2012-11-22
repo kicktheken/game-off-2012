@@ -12,6 +12,7 @@ define(function JobQueue() {
                 throw "JobQueue is a singleton and cannot be initialized more than once";
             }
             _this = this;
+            g['JobQueue'] = this;
             limit = _limit;
             queues = [[],[],[]];
             deferred = [[],[],[]];

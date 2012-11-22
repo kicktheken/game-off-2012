@@ -4,12 +4,13 @@ define([
     "painter",
     "player",
     "jobqueue",
-    "cursor"
+    "cursor",
+    "camera",
 ],
-function Engine(Map, Painter, Player, JobQueue, Cursor) {
+function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
     var _this;
     var painter, width, height, map,
-        radius, save, saves = [], center, cursor, vs, scrollevents = [], player;
+        radius, save, saves = [], camera, cursor, vs, scrollevents = [], player;
     var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
@@ -18,18 +19,18 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
                 throw "Engine is a singleton and cannot be initialized more than once";
             }
             _this = this;
+            g['Engine'] = this;
             g.twidth = 60;
             g.theight = g.twidth/2;
 
             map = new Map();
+            camera = new Camera();
             player = new Player("img/castle_might.png");
-            painter = new Painter(map, player);
+            painter = new Painter(player);
             jobqueue = new JobQueue(1000);
-            //jobqueue.push(_this.load);
             radius = 2;
-            cursor = new Cursor(map);
+            cursor = new Cursor();
             vs = [];
-            center = {x:0, y:0};
             deceleration = 1;
             maxv = 30;
             //log.setCallback(_this.showStatus);
@@ -46,12 +47,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
         },
         // {{{ resize
         resize: function() {
-            width = $(window).width();
-            height = $(window).height();
-            document.body.style.width = width;
-            document.body.style.height = height;
-            log.info("engine resize to "+width+"x"+height+" ts:"+(g.ts() - g.INITTIME));
-
+            apply(camera, 'setDimensions', $(window).width(), $(window).height());
             jobqueue.push(0, _this.load);
             return true;
         },
@@ -87,35 +83,27 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
             if (cursor.isDown()) {
                 _this.scroll(dcoords[0], dcoords[1]);
             }
-            cursor.draw(center.x,center.y,width,height);
+            cursor.draw();
         },
         cursorover: function(x,y) {
-            cursor.draw(center.x,center.y,width,height);
+            cursor.draw();
         },
         cursorout: function() {
             cursor.hide();
         },
         // }}}
         load: function() {
-            var jobs = painter.load(center.x, center.y, width, height);
+            var jobs = painter.load();
             for (var i=0; i<jobs.length; i++) {
-                jobqueue.push(1, function(job) {
-                    var ret = job();
-                    if (ret) {
-                        ret(center.x, center.y, width, height);
-                        return true;
-                    }
-                    return false;
-                }, [jobs[i]]);
+                jobqueue.push(1, jobs[i]);
             }
             if (!cursor.isHidden()) {
-                cursor.draw(center.x,center.y,width,height);
+                cursor.draw();
             }
             return true;
         },
         scroll: function(x,y) {
-            center.x += x;
-            center.y += y;
+            apply(camera, 'moveCenter', x, y);
             cursor.hide();
             jobqueue.push(0, _this.load);
         },
@@ -132,7 +120,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor) {
             elapsed += res;
             if (ticks % 100 == 0) {
                 var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " count: "+jobqueue.count();
-                msg += " center "+[center.x,+center.y];
+                msg += " "+camera;
                 log.info(msg);
                 elapsed = 0;
             }

@@ -16,7 +16,8 @@ define(["sprite"], function LSystem(Sprite) {
                 height: g.spriteheight,
                 justify: "bottom",
                 z: 1,
-                scale: 2/g.BACKSCALE
+                scale: 2/g.BACKSCALE,
+                standalone: true
             });
             this.rules = o.rules;
             this.iterations = o.iterations;

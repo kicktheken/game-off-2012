@@ -1,14 +1,13 @@
 define(["sprite"], function Cursor(Sprite) {
     var maxv = 20;
     var Cursor = Sprite.extend({
-        init: function(map) {
+        init: function() {
             this._super({
                 width:  g.twidth+6,
                 height: g.theight+6,
                 justify:"center",
                 z: 3
             });
-            this.map = map;
             this.cx = -g.twidth; // hide cursor
             this.cy = -g.theight;
             this.down = false;
@@ -59,34 +58,30 @@ define(["sprite"], function Cursor(Sprite) {
         isDown: function() {
             return this.down;
         },
-        setCoords: function(centerx,centery,vwidth,vheight) {
-            var x = this.cx,
-                y = this.cy,
-                mx = Math.round((x+centerx-vwidth/2)/g.twidth*2),
-                my = Math.round((y+centery-vheight/2)/g.theight*2),
-                newx = mx*g.twidth/2 - centerx + vwidth/2,
-                newy = my*g.theight/2 - centery + vheight/2;
-            if ((mx+my)%2 !== 0) {
-                if ((y-newy)*g.theight > (x-newx)*g.twidth) {
-                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
-                        my++;
+        setCoords: function() {
+            var x = this.cx, y = this.cy,
+                m = g.Camera.cursor2map(x,y),
+                n = g.Camera.map2cursor(m.mx,m.my);
+            if ((m.mx+m.my)%2 !== 0) {
+                if ((y-n.y)*g.theight > (x-n.x)*g.twidth) {
+                    if ((y-n.y)*g.theight > -(x-n.x)*g.twidth) {
+                        m.my++;
                     } else {
-                        mx--;
+                        m.mx--;
                     }
                 } else {
-                    if ((y-newy)*g.theight > -(x-newx)*g.twidth) {
-                        mx++;
+                    if ((y-n.y)*g.theight > -(x-n.x)*g.twidth) {
+                        m.mx++;
                     } else {
-                        my--;
+                        m.my--;
                     }
                 }
-                newx = mx*g.twidth/2 - centerx + vwidth/2;
-                newy = my*g.theight/2 - centery + vheight/2;
+                n = g.Camera.map2cursor(m.mx, m.my);
             }
-            this.mx = mx;
-            this.my = my;
-            this.cx = newx;
-            this.cy = newy;
+            this.mx = m.mx;
+            this.my = m.my;
+            this.cx = n.x;
+            this.cy = n.y;
         },
         drawCursor: function(passable) {
             var context = this.context, c1, c2;
@@ -110,9 +105,9 @@ define(["sprite"], function Cursor(Sprite) {
             context.stroke();
             context.fill();
         },
-        draw: function(centerx,centery,vwidth,vheight) {
-            this.setCoords(centerx,centery,vwidth,vheight);
-            var tile = this.map.getTile(this.mx,this.my);
+        draw: function() {
+            this.setCoords();
+            var tile = g.Map.getTile(this.mx,this.my);
             this.drawCursor(tile.isPassable());
             this.show(this.cx,this.cy);
         }

@@ -12,6 +12,7 @@ function Map(SimplexNoise, AStar, Tile) {
             }
             this._super();
             _this = this;
+            g['Map'] = this;
             map = {};
             simplex = new SimplexNoise();
             _this.setupNoise();
@@ -63,6 +64,31 @@ function Map(SimplexNoise, AStar, Tile) {
                 var ret = _this.getTile(col,row);
                 col++;
                 return ret;
+            };
+        },
+        getCircleIterator: function(x,y,radius) {
+            var row = y-radius, col = x-radius,
+                maxy = y+radius, maxx = x+radius;
+            return function() {
+                while(true) {
+                    if (row > maxy) {
+                        return false;
+                    }
+                    if (col > maxx) {
+                        row++;
+                        if (row > maxy) {
+                            return false;
+                        }
+                        col = x-radius;
+                    }
+                    var dist = Math.sqrt(col*col+row*row);
+                    if (radius >= dist) {
+                        var ret = _this.getTile(col,row);
+                        col++;
+                        return ret;
+                    }
+                    col++;
+                }
             };
         },
         getTile: function(x,y) {
