@@ -100,6 +100,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
             if (!cursor.isHidden()) {
                 cursor.draw();
             }
+            camera.updateBounds(player.mx,player.my);
             return true;
         },
         scroll: function(x,y) {

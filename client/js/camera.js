@@ -1,9 +1,18 @@
 define(function Camera() {
+    var _this;
     return Class.extend({
         init: function() {
+            if (typeof _this !== 'undefined') {
+                throw "Camera is a singleton and cannot be initialized more than once";
+            }
+            _this = this;
+            g['Camera'] = this;
             this.x = 0;
             this.y = 0;
-            g['Camera'] = this;
+            this.maxx = 0;
+            this.maxy = 0;
+            this.minx = 0;
+            this.miny = 0;
         },
         setDimensions: function(width,height) {
             this.width = width;
@@ -13,11 +22,30 @@ define(function Camera() {
             log.info("engine resize to "+width+"x"+height+" ts:"+(g.ts() - g.INITTIME));
         },
         moveCenter: function(x,y) {
-            this.x += x;
-            this.y += y;
+            var newx = this.x + x, newy = this.y + y;
+            if (newx > this.maxx) {
+                this.x = this.maxx;
+            } else if (newx < this.minx) {
+                this.x = this.minx;
+            } else {
+                this.x = newx;
+            }
+            if (newy > this.maxy) {
+                this.y = this.maxy;
+            } else if (newy < this.miny) {
+                this.y = this.miny;
+            } else {
+                this.y = newy;
+            }
         },
         toString: function() {
             return 'camera('+this.x+','+this.y+')';
+        },
+        updateBounds: function(mx,my) {
+            this.maxx = Math.max(mx*g.twidth/2,this.maxx);
+            this.maxy = Math.max(my*g.theight/2,this.maxy);
+            this.minx = Math.min(mx*g.twidth/2,this.minx);
+            this.miny = Math.min(my*g.theight/2,this.miny);
         },
         // conversions helpers
         cursorCenter: function() {
