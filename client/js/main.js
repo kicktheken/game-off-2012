@@ -55,7 +55,7 @@ define(["engine"],function(Engine) {
             $(document).bind('touchmove', function(e) {
                 var orig = e.originalEvent.touches[0];
                 e.preventDefault();
-                engine.cursormove(orig.pageX, orig.pageY);
+                engine.cursormove(orig.pageX, orig.pageY, true);
             });
 
         } else {
@@ -66,7 +66,9 @@ define(["engine"],function(Engine) {
                 engine.cursorend();
             });
             document.addEventListener('mousemove', function (e) {
-                engine.cursormove(e.clientX, e.clientY);
+                // e.which is always 1 on IE 9 despite the following docs:
+                // http://msdn.microsoft.com/en-us/library/ie/ff974344(v=vs.85).aspx
+                engine.cursormove(e.clientX, e.clientY, e.which);
             });
             document.addEventListener('mouseover', function (e) {
                 engine.cursorover(e.clientX, e.clientY);

@@ -55,6 +55,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
         // {{{ cursor
         cursorstart: function(x,y) {
             cursor.press(x,y);
+            cursor.draw();
             var ma = player.getMapCoords();
                 path = map.findPath(ma[0],ma[1],cursor.mx,cursor.my);
             log.info('path length: '+path.length);
@@ -78,9 +79,9 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
                 return (scrollevents.length === 0) ? true : null;
             });
         },
-        cursormove: function(x,y) {
+        cursormove: function(x,y, down) {
             var dcoords = cursor.move(x,y);
-            if (cursor.isDown()) {
+            if (down && cursor.isDown()) {
                 _this.scroll(dcoords[0], dcoords[1]);
             }
             cursor.draw();
@@ -100,7 +101,6 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
             if (!cursor.isHidden()) {
                 cursor.draw();
             }
-            camera.updateBounds(player.mx,player.my);
             return true;
         },
         scroll: function(x,y) {

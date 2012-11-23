@@ -91,6 +91,7 @@ function Painter(Zone, Sprite, LSystem) {
                         var zone = tile.zones[i];
                         updatedZones[zone] = zone;
                     }
+                    g.Camera.updateBounds(tile.x, tile.y);
                     tile.visible = true;
                 }
             }
