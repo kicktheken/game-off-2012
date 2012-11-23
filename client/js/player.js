@@ -23,6 +23,13 @@ define(["sprite"], function Player(Sprite) {
             this.cx = 0;
             this.cy = 0;
             this.dest = [];
+
+            var ratio = this.ratio = g.twidth/g.theight;
+            // solved from equation:
+            // (x^2)/2 + y^2 = 1
+            // x = 2y
+            this.diagcoef = Math.sqrt(1/(.5*ratio*ratio+1));
+            this.speed = 5;
             this.framems = 50;
             this.anim = {
                 idle: {
@@ -60,67 +67,61 @@ define(["sprite"], function Player(Sprite) {
         draw: function(x,y) {
             if (this.ready) {
                 var ts = g.ts();
+                this.ms += ts - this.ts;
+                var actiontype = 'idle';
+                if (this.dest.length > 0) {
+                    var travel = this.speed*(ts-this.ts)/this.framems,
+                        ratio = this.ratio, diagcoef = this.diagcoef;
+                    while (travel && this.dest.length > 0) {
+                        var tile = this.dest[0],
+                            destx = tile.x*g.twidth/2, newx = 0,
+                            desty = tile.y*g.theight/2; newy = 0,
+                            dx = destx-this.cx, dy = desty-this.cy;
+                        try {
+                            if (dx === 0) {
+                                this.orientation = (dy < 0) ? 'N' : 'S';
+                                if (travel > Math.abs(dy)) {
+                                    throw (travel -= Math.abs(dy));
+                                }
+                                newy += (dy < 0) ? -travel : travel;
+                            } else if (dy === 0) {
+                                this.orientation = (dx < 0) ? 'W' : 'E';
+                                if (travel*ratio > Math.abs(dx)) {
+                                    throw (travel -= Math.abs(dx)/ratio);
+                                }
+                                newx += (dx < 0) ? -travel*ratio : travel*ratio;
+                            } else {
+                                this.orientation = (dy < 0) ? 'N' : 'S';
+                                this.orientation += (dx < 0) ? 'W' : 'E';
+                                if (travel*diagcoef > Math.abs(dy)) {
+                                    // pythagoras is a beast yo
+                                    throw (travel -= Math.sqrt((dx*dx+dy*dy)/5));
+                                }
+                                newy += (dy < 0) ? -travel*diagcoef : travel*diagcoef;
+                                newx += (dx < 0) ? -travel*diagcoef*ratio : travel*diagcoef*ratio;
+                            }
+                            this.cx += newx;
+                            this.cy += newy;
+                            travel = 0;
+                        } catch(notused) {
+                            this.cx = destx;
+                            this.cy = desty;
+                            this.mx = tile.x;
+                            this.my = tile.y;
+                            this.dest.shift();
+                        }
+                    }
+                    actiontype = 'moving';
+                }
+                this.setSrcX(actiontype);
                 this.context.clearRect(0,0,this.width,this.height);
                 this.context.drawImage(
                     this.image,
                     this.srcx,0,64,64,
                     0,0,64,64
                 );
-                var actiontype = 'idle';
-                if (this.dest.length > 0) {
-                    var tile = this.dest[0],
-                        destx = tile.x*g.twidth/2,
-                        desty = tile.y*g.theight/2;
-                    //log.info([destx,desty, this.cx,this.cy]);
-                    if (this.cx == destx && this.cy == desty) {
-                        //log.info([tile.x,tile.y]);
-                        this.mx = tile.x;
-                        this.my = tile.y;
-                        this.dest.shift();
-                    } else {
-                        var dx = destx-this.cx, dy = desty-this.cy;
-                        if (dx > 0) {
-                            if (dy > 0) {
-                                this.orientation = 'SE';
-                                this.cx += 2;
-                                this.cy += 1;
-                            } else if (dy < 0) {
-                                this.orientation = 'NE';
-                                this.cx += 2;
-                                this.cy -= 1;
-                            } else {
-                                this.orientation = 'E';
-                                this.cx += 2;
-                            }
-                        } else if (dx < 0) {
-                            if (dy > 0) {
-                                this.orientation = 'SW';
-                                this.cx -= 2;
-                                this.cy += 1;
-                            } else if (dy < 0) {
-                                this.orientation = 'NW';
-                                this.cx -= 2;
-                                this.cy -= 1;
-                            } else {
-                                this.orientation = 'W';
-                                this.cx -= 2;
-                            }
-                        } else {
-                            if (dy > 0) {
-                                this.orientation = 'S';
-                                this.cy += 1;
-                            } else if (dy < 0) {
-                                this.orientation = 'N';
-                                this.cy -= 1;
-                            }
-                        }
-                    }
-                    actiontype = 'moving';
-                }
                 this.show(x+this.cx, y+this.cy);
-                this.ms += ts - this.ts;
                 this.ts = ts;
-                this.setSrcX(actiontype);
             }
         },
         setDestination: function(dest) {

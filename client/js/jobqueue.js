@@ -1,5 +1,5 @@
 /**
- * A "job" is a function or a chain of functions that returns:
+ * A "job" is a function that returns:
  *  true: if the job is done
  *  false: if the job is not done
  *  null: delay execution for this cycle and yield to next job
