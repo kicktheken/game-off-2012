@@ -25,12 +25,9 @@ define(["sprite"], function Cursor(Sprite) {
         release: function() {
             this.down = false;
             var dx,dy,dt,v,vs = this.vs;
-            if (vs.length === 0) {
+            this.vs = [];
+            if (vs.length <= 1) {
                 return;
-            } else if (vs.length === 1) {
-                dx = vs[0].dx;
-                dy = vs[0].dy;
-                dt = vs[0].dt;
             } else { // look at the last two to resolve the (backwards glitch)
                 var a = anglediff(vs[0].dx,vs[0].dy,vs[1].dx,vs[1].dy),
                     i = (Math.abs(a) > Math.PI/2) ? 1 : 0;
@@ -40,7 +37,6 @@ define(["sprite"], function Cursor(Sprite) {
             }
             v = Math.sqrt(dx*dx+dy*dy) / dt * 1000 / 60;
             if (v > maxv) v = maxv;
-            this.vs = [];
             return [v,dx,dy];
         },
         move: function(x,y) {

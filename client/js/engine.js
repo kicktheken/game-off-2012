@@ -56,15 +56,15 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
         cursorstart: function(x,y) {
             cursor.press(x,y);
             cursor.draw();
-            var ma = player.getMapCoords();
-                path = map.findPath(ma[0],ma[1],cursor.mx,cursor.my);
-            log.info('path length: '+path.length);
-            player.setDestination(path);
             scrollevents = [];
         },
         cursorend: function() {
             var vector = cursor.release();
             if (!vector) {
+                var ma = player.getMapCoords();
+                path = map.findPath(ma[0],ma[1],cursor.mx,cursor.my);
+                log.info('path length: '+path.length);
+                player.setDestination(path);
                 return;
             }
             for (var k = vector[0]; k > 0; k -= deceleration) {
