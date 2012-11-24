@@ -1,22 +1,21 @@
 define(["sprite"], function Player(Sprite) {
     return Sprite.extend({
-        init: function(imagepath) {
+        init: function(anim) {
+            var _this = this;
+            this.anim = anim;
             this._super({
-                width: 64,
-                height: 64,
+                width: anim.frame.dest.w,
+                height: anim.frame.dest.h,
                 justify: 'bottom',
-                x: 0,
-                y: 4,
+                x: anim.offset.dest.x,
+                y: anim.offset.dest.y,
                 z: 2
             });
-            var _this = this;
             this.image = new Image();
-            this.ready = false;
             this.image.onload = function() {
                 _this.ready = true;
             };
-            this.image.src = imagepath;
-            this.ts = g.ts();
+
             this.ms = 0;
             this.mx = 0;
             this.my = 0;
@@ -29,30 +28,16 @@ define(["sprite"], function Player(Sprite) {
             // (x^2)/2 + y^2 = 1
             // x = 2y
             this.diagcoef = Math.sqrt(1/(.5*ratio*ratio+1));
-            this.speed = 5;
-            this.framems = 50;
-            this.anim = {
-                idle: {
-                    S:  {start:0, frames:1},
-                    SE: {start:1, frames:1},
-                    E:  {start:2, frames:1},
-                    NE: {start:3, frames:1},
-                    N:  {start:4, frames:1}
-                },
-                moving: {
-                    S:  {start:5, frames:8},
-                    SE: {start:13, frames:8},
-                    E:  {start:21, frames:8},
-                    NE: {start:29, frames:8},
-                    N:  {start:37, frames:8}
-                }
-            };
             this.orientation = 'SE';
             this.flipped = false;
-            this.setSrcX('idle');
+            this.ready = false;
+
+            this.ts = g.ts();
+            this.setSrcCoords('idle');
+            this.image.src = anim.img;
         },
-        setSrcX: function(actiontype) {
-            var o = this.orientation, anim;
+        setSrcCoords: function(actiontype) {
+            var o = this.orientation, anim = this.anim, frame;
             if (o.search('W') >= 0) {
                 if (!this.flipped) {
                     this.flip();
@@ -61,16 +46,17 @@ define(["sprite"], function Player(Sprite) {
             } else if (this.flipped && o.search('E') >= 0) {
                 this.flip();
             }
-            anim = this.anim[actiontype][o];
-            this.srcx = (anim.start+(Math.floor(this.ms/this.framems)%anim.frames))*96+16;
+            frame = anim[actiontype][o];
+            this.srcx = (frame.fx+(Math.floor(this.ms/anim.frame.ms)%frame.count))*anim.frame.src.w+anim.offset.src.x;
+            this.srcy = frame.fy*anim.frame.src.h+anim.offset.src.y;
         },
         draw: function(x,y) {
             if (this.ready) {
-                var ts = g.ts();
+                var ts = g.ts(), anim = this.anim;
                 this.ms += ts - this.ts;
                 var actiontype = 'idle';
                 if (this.dest.length > 0) {
-                    var travel = this.speed*(ts-this.ts)/this.framems,
+                    var travel = anim.frame.speed*(ts-this.ts)/100,
                         ratio = this.ratio, diagcoef = this.diagcoef;
                     while (travel && this.dest.length > 0) {
                         var tile = this.dest[0],
@@ -113,12 +99,12 @@ define(["sprite"], function Player(Sprite) {
                     }
                     actiontype = 'moving';
                 }
-                this.setSrcX(actiontype);
+                this.setSrcCoords(actiontype);
                 this.context.clearRect(0,0,this.width,this.height);
                 this.context.drawImage(
                     this.image,
-                    this.srcx,0,64,64,
-                    0,0,64,64
+                    this.srcx,this.srcy,anim.frame.dest.w,anim.frame.dest.h,
+                    0,0,anim.frame.dest.w,anim.frame.dest.h
                 );
                 this.show(x+this.cx, y+this.cy);
                 this.ts = ts;

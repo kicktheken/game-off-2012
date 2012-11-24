@@ -6,8 +6,9 @@ define([
     "jobqueue",
     "cursor",
     "camera",
+    "sprites"
 ],
-function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
+function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, sprites) {
     var _this;
     var painter, width, height, map,
         radius, save, saves = [], camera, cursor, vs, scrollevents = [], player;
@@ -25,7 +26,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera) {
 
             map = new Map();
             camera = new Camera();
-            player = new Player("img/castle_might.png");
+            player = new Player(sprites['castle_might']);
             painter = new Painter(player);
             jobqueue = new JobQueue(1000);
             radius = 2;
