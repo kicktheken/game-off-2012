@@ -6,7 +6,7 @@ define(function Tile() {
             this.r = Math.pow((r+1)/2, 1+d);
             this.x = x;
             this.y = y;
-            this.visible = false;
+            this.visible = getDefault(g.MAPREVEAL,false);
             this.pos = {x:x,y:y};
             this.reset();
             this.zones = new Array(4);

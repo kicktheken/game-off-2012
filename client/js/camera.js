@@ -22,6 +22,11 @@ define(function Camera() {
             log.info("engine resize to "+width+"x"+height+" ts:"+(g.ts() - g.INITTIME));
         },
         moveCenter: function(x,y) {
+            if (g.MAPREVEAL) {
+                this.x += x;
+                this.y += y;
+                return;
+            }
             var newx = this.x + x, newy = this.y + y;
             if (newx > this.maxx) {
                 this.x = this.maxx;

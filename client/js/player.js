@@ -21,6 +21,7 @@ define(["sprite"], function Player(Sprite) {
             this.my = 0;
             this.cx = 0;
             this.cy = 0;
+            this.sight = 10;
             this.dest = [];
 
             var ratio = this.ratio = g.twidth/g.theight;

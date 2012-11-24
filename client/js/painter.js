@@ -84,19 +84,23 @@ function Painter(Zone, Sprite, LSystem) {
             shownqueue[zone] = zone;
         },
         drawPlayer: function() {
-            var iterator = g.Map.getCircleIterator(player.mx,player.my,10), tile, updatedZones = {};
-            while (tile = iterator()) {
-                if (!tile.isVisible()) {
-                    for (var i in tile.zones) {
-                        var zone = tile.zones[i];
-                        updatedZones[zone] = zone;
+            var iterator, tile;
+            if (!g.MAPREVEAL) {
+                var updatedZones = {};
+                iterator = g.Map.getCircleIterator(player.mx,player.my,player.sight);
+                while (tile = iterator()) {
+                    if (!tile.isVisible()) {
+                        for (var i in tile.zones) {
+                            var zone = tile.zones[i];
+                            updatedZones[zone] = zone;
+                        }
+                        g.Camera.updateBounds(tile.x, tile.y);
+                        tile.visible = true;
                     }
-                    g.Camera.updateBounds(tile.x, tile.y);
-                    tile.visible = true;
                 }
-            }
-            for (var i in updatedZones) {
-                updatedZones[i].forceLoad();
+                for (var i in updatedZones) {
+                    updatedZones[i].forceLoad();
+                }
             }
             var cpos = g.Camera.cursorCenter();
             player.draw(cpos.x, cpos.y);
