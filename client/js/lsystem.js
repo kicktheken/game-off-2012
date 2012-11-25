@@ -6,11 +6,8 @@ define(["sprite"], function LSystem(Sprite) {
         this.angle = angle;
         this.i = i;
     };
-    function randomIndex(a) {
-        return (a)[Math.floor(Math.random()*(a).length)];
-    }
     return Sprite.extend({
-        init: function(o) {
+        init: function(o,colors) {
             this._super({
                 width:  g.spritewidth,
                 height: g.spriteheight,
@@ -24,9 +21,11 @@ define(["sprite"], function LSystem(Sprite) {
             this.distance = o.distance;
             this.angle = o.angle;
             this.colors = [];
-            for (var i in o.colors) {
-                this.colors.push(randomIndex(tinycolor.analogous(o.colors[i])).toRgbString());
+            for (var i in colors) {
+                this.colors.push(colors[i]);
             }
+            // TODO: use color filters to reduce frequency of calling this expensive function
+            // http://www.html5rocks.com/en/tutorials/canvas/imagefilters/
             this.initLSystem();
         },
         initLSystem: function() {

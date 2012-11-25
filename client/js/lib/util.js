@@ -44,6 +44,10 @@ var hsl = function(h,s,l) {
     return {h:h,s:s,l:l};
 };
 
+function randomIndex(a) {
+    return (a)[Math.floor(Math.random()*(a).length)];
+}
+
 // code taken from https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/wheel
 var initMouseScroll = function() {
     var prefix = "", _addEventListener, onwheel, support;

@@ -25,7 +25,7 @@ function Map(SimplexNoise, AStar, Tile) {
                     return simplex.noise3D((x+rx)/size, (y+ry)/size, rz*size);
                 };
             };
-            var sizes = [32, 16, 8, 4], noises = [], pnoises = [];
+            var sizes = [32, 16, 8, 4], noises = [], pnoises = [], bias = Math.random()*2-1;
             for (var i in sizes) {
                 for (var k=0; k<1000; k++) {
                     noises[i] = generateNoiseFunction(sizes[i]);
@@ -49,7 +49,13 @@ function Map(SimplexNoise, AStar, Tile) {
 
             sizes = [512, 128, 32];
             for (var i in sizes) {
-                pnoises[i] = generateNoiseFunction(sizes[i]);
+                for (var k=0; k<1000; k++) {
+                    pnoises[i] = generateNoiseFunction(sizes[i]);
+                    var r = pnoises[i](0,0);
+                    if (r > (bias - .2) && r < (bias + .2)) {
+                        break;
+                    }
+                }
             }
             simplex.noiseP = function(x,y) {
                 return pnoises[0](x,y)/2 + pnoises[1](x,y)/4 + pnoises[2](x,y)/8;
