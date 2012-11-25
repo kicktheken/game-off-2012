@@ -16,7 +16,7 @@ define(["sprite"],function Zone(Sprite) {
                 Math.floor((2*zx-1)*dsize/g.twidth),
                 Math.floor((2*zy-1)*dsize/g.theight),
                 Math.ceil((2*zx+1)*dsize/g.twidth),
-                Math.ceil((2*zy+1)*dsize/g.theight + g.spriteheight/g.theight)
+                Math.ceil((2*zy+1)*dsize/g.theight)+Math.ceil(g.spriteheight/g.theight)
             ];
             this.buffer = new Sprite({
                 width:      this.size,
