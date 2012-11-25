@@ -37,6 +37,7 @@ define(["sprite"],function Zone(Sprite) {
         forceLoad: function() {
             this.loaded = false;
             if (this.job) {
+                log.info("reset iterator "+this);
                 this.resetIterator();
             }
         },
@@ -60,12 +61,8 @@ define(["sprite"],function Zone(Sprite) {
                 for (var i=0; i<1000; i++) {
                     var tile = _this.iterator();
                     if (!tile) {
-                        if (g.Camera.isZoneVisible(dsize,size,zx,zy)) {
-                            _this.swapBuffer();
-                            apply(_this,'show');
-                        } else {
-                            apply(_this,'hide');
-                        }
+                        _this.swapBuffer();
+                        apply(_this,'show');
                         _this.loaded = true;
                         _this.iterator = null;
                         _this.job = null;
@@ -74,9 +71,9 @@ define(["sprite"],function Zone(Sprite) {
                     if (tile.isDrawable()) {
                         g.Painter.drawTile(
                             context,
+                            tile,
                             tile.x*g.twidth/2-dsize*zx+size/2,
-                            tile.y*g.theight/2-dsize*zy+size/2,
-                            tile.r
+                            tile.y*g.theight/2-dsize*zy+size/2
                         )
                     } else {
                         // don't count undrawn tiles

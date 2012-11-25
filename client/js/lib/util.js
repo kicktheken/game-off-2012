@@ -36,6 +36,10 @@ var isInt = function(n) {
     return (n % 1) === 0;
 };
 
+var hsv = function(h,s,v) {
+    return {h:h,s:s,v:v};
+};
+
 // code taken from https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/wheel
 var initMouseScroll = function() {
     var prefix = "", _addEventListener, onwheel, support;

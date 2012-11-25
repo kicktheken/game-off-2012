@@ -46,6 +46,7 @@ function Map(SimplexNoise, AStar, Tile) {
                     break;
                 }
             }
+            simplex.noiseP = generateNoiseFunction(256);
         },
         getZoneIterator: function(x,y,maxx,maxy) {
             //log.info([x,y,_maxx,_maxy]);

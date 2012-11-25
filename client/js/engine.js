@@ -122,7 +122,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, sprites) {
             elapsed += res;
             if (ticks % 100 == 0) {
                 var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " "+jobqueue;
-                msg += " "+camera+" "+player;
+                msg += " "+camera+" "+player+" "+painter;
                 log.info(msg);
                 elapsed = 0;
             }

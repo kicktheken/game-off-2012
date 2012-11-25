@@ -5,7 +5,7 @@ define([
 ],
 function Painter(Zone, Sprite, LSystem) {
     var _this, zmap, player, rcg = [], trees = [],
-        dsize, shownqueue;
+        dsize, count, shownqueue;
     var Painter = Class.extend({
         init: function(_player) {
             if (typeof _this !== 'undefined') {
@@ -17,6 +17,7 @@ function Painter(Zone, Sprite, LSystem) {
             zmap = new Object();
             dsize = (g.MOBILE) ? 480 : 640;
             shownqueue = new Object();
+            count = 0;
             _this.initTrees();
         },
         initTrees: function() {
@@ -64,6 +65,7 @@ function Painter(Zone, Sprite, LSystem) {
                     if (zone === undefined) {
                         zone = new Zone(dsize,zx,zy);
                         zmap[zy][zx] = zone;
+                        count++;
                     }
                     var job = zone.load();
                     if (job) {
@@ -115,7 +117,7 @@ function Painter(Zone, Sprite, LSystem) {
                 player.flip();
             }
             while (tile = iterator()) {
-                if (tile.isDrawable() && tile.r > .8) {
+                if (tile.isDrawable() && tile.isTree()) {
                     var x = tile.x*g.twidth/2 - player.cx - player.x,
                         y = tile.y*g.theight/2 - player.cy - player.y;
                     trees[Math.floor(tile.r*256*256)%trees.length].draw(player.context, x, y);
@@ -126,14 +128,15 @@ function Painter(Zone, Sprite, LSystem) {
             }
 
         },
-        drawTile: function(context,x,y,r) {
-            var c, i, h;
+        drawTile: function(context,tile,x,y) {
+            var i, h;
 
             // set color
-            h = r*rcg.length;
+            h = tile.r*rcg.length;
             i = Math.floor(h);
-            c = rcg[i](h-i);
-            context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
+            context.fillStyle = rcg[i](h-i, tile.p);
+            //c = rcg[i](h-i);
+            //context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
 
             // draw on context
             context.beginPath();
@@ -146,61 +149,80 @@ function Painter(Zone, Sprite, LSystem) {
             context.fill();
 
             // draw tree
-            if (r > .8) {
-                trees[Math.floor(r*256*256)%trees.length].draw(context, x, y);
+            if (tile.isTree()) {
+                trees[Math.floor(tile.ob*256*256)%trees.length].draw(context, x, y);
             }
+        },
+        toString: function() {
+            return 'painter('+count+' zones)';
         }
     });
 
     // initialize color generators
     (function initColor(generateRCG) {
-        var blue = generateRCG(function(r) {
-                var c = Math.floor(r*101) + 120;
-                return [0,c-50,c];
-            });
-            var yellow = generateRCG(function(r) {
-                var c = Math.floor((1-r)*21) + 180;
-                return [c,c-20,0];
-            });
-            var green = generateRCG(function(r) {
-                return [80, Math.floor((1-r)*81) + 120, 20];
-            });
-            var brown = generateRCG(function(r) {
-                var c = Math.floor(r*51) + 60;
-                return [c,Math.floor(c/3*2),0];
-            });
-            var white = generateRCG(function(r) {
-                var c = Math.floor(r*51) + 200;
-                return [c-40,c-20,c];
-            });
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(blue());
-            rcg.push(yellow());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(green());
-            rcg.push(brown());
-            rcg.push(brown());
-            rcg.push(brown());
-            rcg.push(white());
+        var blue = generateRCG(function(r,p) {
+            return tinycolor(hsv(200,.9,r*.4+.5)).toRgbString();
+        });
+        var yellow = generateRCG(function(r,p) {
+            p = Math.floor(p*3);
+            switch(p) {
+                case 0: return tinycolor(hsv(50,.7,(1-r)*.1+.8)).toRgbString();
+                case 1: return tinycolor(hsv(70,.5,(1-r)*.1+.7)).toRgbString();
+                case 2: return tinycolor(hsv(40,.8,(1-r)*.1+.5)).toRgbString();
+            }
+        });
+        var green = generateRCG(function(r,p) {
+            p = Math.floor(p*3);
+            switch(p) {
+                case 0: return tinycolor(hsv(50,.7,(1-r)*.2+.6)).toRgbString();
+                case 1: return tinycolor(hsv(90,.8,(1-r)*.2+.5)).toRgbString();
+                case 2: return tinycolor(hsv(120,.8,(1-r)*.2+.4)).toRgbString();
+            }
+        });
+        var brown = generateRCG(function(r,p) {
+            p = Math.floor(p*3);
+            switch(p) {
+                case 0: return tinycolor(hsv(50,.4,(1-r)*.3+.2)).toRgbString();
+                case 1: return tinycolor(hsv(70,.5,(1-r)*.2+.3)).toRgbString();
+                case 2: return tinycolor(hsv(120,.8,(1-r)*.1+.3)).toRgbString();
+            }
+        });
+        var white = generateRCG(function(r,p) {
+            p = Math.floor(p*3);
+            switch (p) {
+                case 0: return tinycolor(hsv(50,.4,(1-r)*.2)).toRgbString();
+                case 1: return tinycolor(hsv(60,.6,(1-r)*.2+.1)).toRgbString();
+                case 2: return tinycolor(hsv(40,.8,(1-r)*.2+.1)).toRgbString();
+            }
+        });
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(blue());
+        rcg.push(yellow());
+        rcg.push(green());
+        rcg.push(green());
+        rcg.push(green());
+        rcg.push(green());
+        rcg.push(brown());
+        rcg.push(brown());
+        rcg.push(white());
+        rcg.push(white());
+        rcg.push(white());
     })(function(f) {
         return (function() {
             var count = 0;
             return function() {
                 var index = count;
                 count++;
-                return function(r) {
-                     return f(r/count + index/count);
+                return function(r,p) {
+                     return f(r/count + index/count,p);
                 };
             };
         })();

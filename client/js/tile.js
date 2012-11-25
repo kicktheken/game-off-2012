@@ -4,6 +4,8 @@ define(function Tile() {
             var r = simplex.noiseR(x,y);
             var d = simplex.noiseD(x,y);
             this.r = Math.pow((r+1)/2, 1+d);
+            this.b = 0;
+            this.p = (simplex.noiseP(x,y)+1)/2;
             this.x = x;
             this.y = y;
             this.visible = getDefault(g.MAPREVEAL,false);
@@ -24,7 +26,10 @@ define(function Tile() {
             return this.visible && (this.x+this.y) % 2 === 0;
         },
         isPassable: function() {
-            return (this.r >= .5 && this.r <= .8);
+            return (this.r > .5 && this.b < .5);
+        },
+        isTree: function() {
+            return (this.r > .6 && this.b >= .5);
         },
         isVisible: function() {
             return this.visible;
