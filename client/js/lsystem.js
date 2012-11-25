@@ -23,9 +23,9 @@ define(["sprite"], function LSystem(Sprite) {
             this.iterations = o.iterations;
             this.distance = o.distance;
             this.angle = o.angle;
-            this.colors = o.colors;
-            for (var i in this.colors) {
-                this.colors[i] = randomIndex(tinycolor.analogous(this.colors[i])).toRgbString();
+            this.colors = [];
+            for (var i in o.colors) {
+                this.colors.push(randomIndex(tinycolor.analogous(o.colors[i])).toRgbString());
             }
             this.initLSystem();
         },
