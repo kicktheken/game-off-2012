@@ -40,6 +40,10 @@ var hsv = function(h,s,v) {
     return {h:h,s:s,v:v};
 };
 
+var hsl = function(h,s,l) {
+    return {h:h,s:s,l:l};
+};
+
 // code taken from https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/wheel
 var initMouseScroll = function() {
     var prefix = "", _addEventListener, onwheel, support;

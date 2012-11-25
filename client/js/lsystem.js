@@ -23,19 +23,17 @@ define(["sprite"], function LSystem(Sprite) {
             this.iterations = o.iterations;
             this.distance = o.distance;
             this.angle = o.angle;
-            this.colors = [];
-            this.colors.push(randomIndex(tinycolor.analogous("rgb(140, 80, 60)")).toRgbString());
-            this.colors.push(randomIndex(tinycolor.analogous("rgb(100, 150, 24)")).toRgbString());
-            this.colors.push(randomIndex(tinycolor.analogous("rgb(24, 180, 24)")).toRgbString());
-            this.colors.push(randomIndex(tinycolor.analogous("rgb(48, 220, 48)")).toRgbString());
+            this.colors = o.colors;
+            for (var i in this.colors) {
+                this.colors[i] = randomIndex(tinycolor.analogous(this.colors[i])).toRgbString();
+            }
             this.initLSystem();
         },
         initLSystem: function() {
             var context = this.context,
                 width = this.width,
                 height = this.height;
-            context.fillStyle = 'rgba(0,0,0,0)';
-            context.fillRect(0, 0, width, height);
+            context.clearRect(0,0,width,height);
             context.lineCap = 'round';
 
             var axiom = "0", stack = [], that = this,
@@ -62,7 +60,7 @@ define(["sprite"], function LSystem(Sprite) {
                             if (c == 0) {
                                 color = that.colors[(stack.length > 0) ? 1 : 0];
                             } else {
-                                color = that.colors[parseInt(c)+4-that.rules.length];
+                                color = that.colors[c];
                             }
                             that.drawLine(state, that.context, color);
                             if (depth > 1) {
