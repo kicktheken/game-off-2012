@@ -5,7 +5,7 @@ define([
 ],
 function Painter(Zone, Sprite, LSystem) {
     var _this, zmap, player, rcg = [], trees,
-        dsize, count, shownqueue;
+        dsize, zonecount, tilecount, shownqueue;
     var Painter = Class.extend({
         init: function(_player) {
             if (typeof _this !== 'undefined') {
@@ -17,7 +17,8 @@ function Painter(Zone, Sprite, LSystem) {
             zmap = new Object();
             dsize = (g.MOBILE) ? 480 : 640;
             shownqueue = new Object();
-            count = 0;
+            zonecount = 0;
+            tilecount = (g.MAPREVEAL) ? Infinity : 0;
             _this.initTrees();
         },
         initTrees: function() {
@@ -122,7 +123,7 @@ function Painter(Zone, Sprite, LSystem) {
                     if (zone === undefined) {
                         zone = new Zone(dsize,zx,zy);
                         zmap[zy][zx] = zone;
-                        count++;
+                        zonecount++;
                     }
                     var job = zone.load();
                     if (job) {
@@ -155,6 +156,9 @@ function Painter(Zone, Sprite, LSystem) {
                         }
                         g.Camera.updateBounds(tile.x, tile.y);
                         tile.visible = true;
+                        if (tile.isDrawable()) {
+                            tilecount++;
+                        }
                     }
                 }
                 for (var i in updatedZones) {
@@ -219,7 +223,7 @@ function Painter(Zone, Sprite, LSystem) {
             }
         },
         toString: function() {
-            return 'painter('+count+' zones)';
+            return 'painter('+zonecount+' zones, '+tilecount+' tiles revealed)';
         }
     });
 
