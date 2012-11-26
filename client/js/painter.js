@@ -4,21 +4,29 @@ define([
     "lsystem"
 ],
 function Painter(Zone, Sprite, LSystem) {
-    var _this, zmap, player, rcg = [], trees,
-        dsize, zonecount, tilecount, shownqueue;
+    var _this, zmap, player, rcg = [], trees, resources,
+        dsize, zonecount, tilecount, shownqueue, sprites;
     var Painter = Class.extend({
-        init: function(_player) {
+        init: function(_player, _sprites) {
             if (typeof _this !== 'undefined') {
                 throw "Painter is a singleton and cannot be initialized more than once";
             }
             _this = this;
             g['Painter'] = this;
             player = _player;
+            sprites = _sprites;
             zmap = new Object();
             dsize = (g.MOBILE) ? 480 : 640;
             shownqueue = new Object();
             zonecount = 0;
             tilecount = (g.MAPREVEAL) ? Infinity : 0;
+            resources = [
+                new Sprite({ img: sprites['wood'], width:32, height:32, justify:'bottom', x:0, y:6, z:1}),
+                new Sprite({ img: sprites['ore'], width:32, height:32, justify:'bottom', x:0, y: 6, z: 1}),
+                new Sprite({ img: sprites['sulfur'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['mercury'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1})
+            ];
+            //resources[0].show(100,100);
             _this.initTrees();
         },
         initTrees: function() {
@@ -209,9 +217,14 @@ function Painter(Zone, Sprite, LSystem) {
             context.stroke();
             context.fill();
 
-            // draw tree
+            // draw stuff
             if (tile.isTree()) {
                 _this.drawTree(context, tile, x, y);
+            } else if (tile.isPassable() && !(tile.x === 0 && tile.y === 0)) {
+                var ri = Math.floor(tile.r*256*256);
+                if (ri % 23 === 0) {
+                    resources[ri%resources.length].draw(context, x, y);
+                }
             }
         },
         drawTree: function(context, tile, x, y) {

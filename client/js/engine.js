@@ -27,7 +27,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, sprites) {
             map = new Map();
             camera = new Camera();
             player = new Player(sprites['castle_might']);
-            painter = new Painter(player);
+            painter = new Painter(player, sprites);
             jobqueue = new JobQueue(1000);
             radius = 2;
             cursor = new Cursor();

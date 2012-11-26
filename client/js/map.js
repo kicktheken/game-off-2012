@@ -42,7 +42,7 @@ function Map(SimplexNoise, AStar, Tile) {
             for (var k=0; k<1000; k++) {
                 simplex.noiseD = generateNoiseFunction(512);
                 var r = simplex.noiseD(0,0);
-                if (r > -.1 && r < .1) {
+                if (r > -.2 && r < 0) {
                     break;
                 }
             }
