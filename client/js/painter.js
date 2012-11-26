@@ -16,7 +16,7 @@ function Painter(Zone, Sprite, LSystem) {
             player = _player;
             sprites = _sprites;
             zmap = new Object();
-            dsize = (g.MOBILE) ? 480 : 640;
+            dsize = (g.MOBILE) ? 160 : 320;
             shownqueue = new Object();
             zonecount = 0;
             tilecount = (g.MAPREVEAL) ? Infinity : 0;
