@@ -56,20 +56,54 @@ function Painter(Zone, Sprite, LSystem) {
                 distance: 2.5,
                 angle: 50
             });
+            // dead shrub
+            treetypes.push({
+                rules: [
+                    "[-1][++2][0][--0]",
+                    "1[2][+0][-0]",
+                    "[-1][+0]"
+                ],
+                iterations: 4,
+                distance: 8,
+                angle: 25
+            });
+            // weird shrub
+            treetypes.push({
+                rules: [
+                    "[-1][++2][0][--0]",
+                    "1[2][+0][-0]",
+                    "[-1][+0]"
+                ],
+                iterations: 5,
+                distance: 5,
+                angle: 20
+            });
+            // dead pine
+            treetypes.push({
+                rules: [
+                    "0[+2][-1][00]",
+                    "0+2",
+                    "0-1"
+                ],
+                iterations: 4,
+                distance: 4,
+                angle: 40
+            });
 
             trees = new Array(5);
             function randomTreeSet(trees,colors) {
                 var ret = [];
                 for (var i=0; i<times; i++) {
-                    var tree = randomIndex(trees), acolors = [];
+                    var tree = randomIndex(trees), acolors = [], sprite;
                     for (var c in colors) {
                         acolors.push(tinycolor.analogous(colors[c])[i%6].toRgbString());
                     }
-                    ret.push(new LSystem(treetypes[tree],acolors));
+                    ret.push(new LSystem(treetypes[tree],acolors, (i%2) === 0));
                 }
                 return ret;
             }
-            trees[0] = randomTreeSet([2], [hsv(30,.8,.5),hsv(30,.5,.4),hsv(30,.4,.3),hsv(30,.8,.6)]);
+            trees[0] = randomTreeSet([3,5], [hsv(30,.8,.5),hsv(30,.5,.4),hsv(30,.4,.3),hsv(30,.8,.6)]);
+            trees[1] = randomTreeSet([3,4], [hsv(30,.8,.5),hsv(60,.5,.5),hsv(90,.6,.7),hsv(90,.8,.8)]);
             trees[2] = randomTreeSet([0,1,2], [hsv(25,.8,.5),hsv(80,.8,.6),hsv(90,.6,.8),hsv(100,.8,.7)]);
             trees[3] = randomTreeSet([0,1], [hsv(30,.8,.5),hsv(100,.8,.5),hsv(120,.9,.7),hsv(140,.8,.7)]);
             trees[4] = randomTreeSet([1,2], [hsv(20,.6,.5),hsv(145,.8,.6),hsv(180,.7,.9),hsl(190,.8,.9)]);

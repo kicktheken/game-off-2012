@@ -7,7 +7,7 @@ define(["sprite"], function LSystem(Sprite) {
         this.i = i;
     };
     return Sprite.extend({
-        init: function(o,colors) {
+        init: function(o,colors,flip) {
             this._super({
                 width:  g.spritewidth,
                 height: g.spriteheight,
@@ -23,6 +23,9 @@ define(["sprite"], function LSystem(Sprite) {
             this.colors = [];
             for (var i in colors) {
                 this.colors.push(colors[i]);
+            }
+            if (flip) {
+                this.flip();
             }
             // TODO: use color filters to reduce frequency of calling this expensive function
             // http://www.html5rocks.com/en/tutorials/canvas/imagefilters/
