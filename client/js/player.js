@@ -23,12 +23,9 @@ define(["sprite"], function Player(Sprite) {
             this.cy = 0;
             this.sight = 10;
             this.dest = [];
+            this.traveled = 0;
 
             var ratio = this.ratio = g.twidth/g.theight;
-            // solved from equation:
-            // (x^2)/2 + y^2 = 1
-            // x = 2y
-            this.diagcoef = Math.sqrt(1/(.5*ratio*ratio+1));
             this.orientation = 'SE';
             this.flipped = false;
             this.ready = false;
@@ -58,7 +55,7 @@ define(["sprite"], function Player(Sprite) {
                 var actiontype = 'idle';
                 if (this.dest.length > 0) {
                     var travel = anim.frame.speed*(ts-this.ts)/100,
-                        ratio = this.ratio, diagcoef = this.diagcoef;
+                        ratio = this.ratio;
                     while (travel && this.dest.length > 0) {
                         var tile = this.dest[0],
                             destx = tile.x*g.twidth/2, newx = 0,
@@ -80,12 +77,12 @@ define(["sprite"], function Player(Sprite) {
                             } else {
                                 this.orientation = (dy < 0) ? 'N' : 'S';
                                 this.orientation += (dx < 0) ? 'W' : 'E';
-                                if (travel*diagcoef > Math.abs(dy)) {
+                                if (travel/Math.SQRT2 > Math.abs(dy)) {
                                     // pythagoras is a beast yo
                                     throw (travel -= Math.sqrt((dx*dx+dy*dy)/5));
                                 }
-                                newy += (dy < 0) ? -travel*diagcoef : travel*diagcoef;
-                                newx += (dx < 0) ? -travel*diagcoef*ratio : travel*diagcoef*ratio;
+                                newy += (dy < 0) ? -travel/Math.SQRT2 : travel/Math.SQRT2;
+                                newx += (dx < 0) ? -travel*Math.SQRT2 : travel*Math.SQRT2;
                             }
                             this.cx += newx;
                             this.cy += newy;
@@ -99,6 +96,7 @@ define(["sprite"], function Player(Sprite) {
                         }
                     }
                     actiontype = 'moving';
+                    this.traveled += anim.frame.speed*(ts-this.ts)/100 - travel;
                 }
                 this.setSrcCoords(actiontype);
                 this.context.clearRect(0,0,this.width,this.height);
@@ -125,7 +123,12 @@ define(["sprite"], function Player(Sprite) {
             return [this.mx,this.my];
         },
         toString: function() {
-            return 'player('+this.mx+','+this.my+')';
+            var a = [
+                this.mx,
+                this.my,
+                (this.traveled/g.theight*Math.SQRT2).toFixed(2)
+            ]
+            return 'player('+a.join()+')';
         }
     });
 });
