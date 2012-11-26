@@ -152,9 +152,8 @@ function Painter(Zone, Sprite, LSystem) {
             shownqueue[zone] = zone;
         },
         drawPlayer: function() {
-            var iterator, tile;
+            var iterator, tile, updatedZones = {};
             if (!g.MAPREVEAL) {
-                var updatedZones = {};
                 iterator = g.Map.getCircleIterator(player.mx,player.my,player.sight);
                 while (tile = iterator()) {
                     if (!tile.isVisible()) {
@@ -169,9 +168,17 @@ function Painter(Zone, Sprite, LSystem) {
                         }
                     }
                 }
-                for (var i in updatedZones) {
-                    updatedZones[i].forceLoad();
+            }
+            tile = g.Map.getTile(player.mx,player.my);
+            if (tile.resource() !== false) {
+                tile.traveled = true;
+                for (var i in tile.zones) {
+                    var zone = tile.zones[i];
+                    updatedZones[zone] = zone;
                 }
+            }
+            for (var i in updatedZones) {
+                updatedZones[i].forceLoad();
             }
             var cpos = g.Camera.cursorCenter();
             player.draw(cpos.x, cpos.y);
@@ -198,7 +205,7 @@ function Painter(Zone, Sprite, LSystem) {
 
         },
         drawTile: function(context,tile,x,y) {
-            var i, h, p = Math.floor(tile.p*trees.length);
+            var i, h, p = Math.floor(tile.p*trees.length), ri;
 
             // set color
             h = tile.r*rcg.length;
@@ -220,11 +227,8 @@ function Painter(Zone, Sprite, LSystem) {
             // draw stuff
             if (tile.isTree()) {
                 _this.drawTree(context, tile, x, y);
-            } else if (tile.isPassable() && !(tile.x === 0 && tile.y === 0)) {
-                var ri = Math.floor(tile.r*256*256);
-                if (ri % 23 === 0) {
-                    resources[ri%resources.length].draw(context, x, y);
-                }
+            } else if (tile.isPassable() && (ri = tile.resource()) !== false) {
+                resources[ri%resources.length].draw(context, x, y);
             }
         },
         drawTree: function(context, tile, x, y) {

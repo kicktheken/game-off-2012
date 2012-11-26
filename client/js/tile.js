@@ -9,6 +9,7 @@ define(function Tile() {
             this.x = x;
             this.y = y;
             this.visible = getDefault(g.MAPREVEAL,false);
+            this.traveled = false;
             this.pos = {x:x,y:y};
             this.reset();
             this.zones = new Array(4);
@@ -30,6 +31,13 @@ define(function Tile() {
         },
         isTree: function() {
             return (this.r > .6 && this.b > .5);
+        },
+        resource: function() {
+            if (this.x === 0 && this.y === 0 || this.traveled) {
+                return false;
+            }
+            var ri = Math.floor(this.r*256*256);
+            return (ri % 23 === 0) && ri;
         },
         isVisible: function() {
             return this.visible;
