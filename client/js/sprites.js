@@ -15,7 +15,7 @@ function() {
             s = JSON.parse(s);
             sprites[s.id] = s;
         } else { // img
-            s = /\/(\w+)\./.exec(arg.src)[1];
+            s = /\/(\w+)\.\w+$/.exec(arg.src)[1];
             sprites[s] = arg;
         }
     }
