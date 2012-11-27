@@ -1,5 +1,5 @@
-define(["engine"],function(Engine) {
-    var engine, ctx, capabilities;
+define(["engine", "preloader"],function(Engine, Preloader) {
+    var engine, ctx, capabilities, sprites;
     capabilities = [
         "canvas",
         "canvastext",
@@ -38,7 +38,7 @@ define(["engine"],function(Engine) {
     var initApp = function() {
         //log.info("document ready");
 
-        engine = new Engine();
+        engine = new Engine(sprites);
         //$canvas = engine.getCanvas();
 
         $(window).resize(engine.resize);
@@ -107,7 +107,9 @@ define(["engine"],function(Engine) {
             engine.run();
         })();
     }
-    $(document).ready(initApp);
-
+    Preloader(function(imgs) {
+        sprites = imgs;
+        $(document).ready(initApp);
+    });
 });
 

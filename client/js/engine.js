@@ -6,16 +6,16 @@ define([
     "jobqueue",
     "cursor",
     "camera",
-    "sprites"
+    "anim"
 ],
-function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, sprites) {
+function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
     var _this;
     var painter, width, height, map,
         radius, save, saves = [], camera, cursor, vs, scrollevents = [], player;
     var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
 
     var Engine = Class.extend({
-        init: function() {
+        init: function(sprites) {
             if (typeof _this !== 'undefined') {
                 throw "Engine is a singleton and cannot be initialized more than once";
             }
@@ -26,7 +26,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, sprites) {
 
             map = new Map();
             camera = new Camera();
-            player = new Player(sprites['castle_might']);
+            player = new Player(sprites['castle_might'], anims['castle_might']);
             painter = new Painter(player, sprites);
             jobqueue = new JobQueue(1000);
             radius = 2;
