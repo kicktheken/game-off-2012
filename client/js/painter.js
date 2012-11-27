@@ -24,9 +24,20 @@ function Painter(Zone, Sprite, LSystem) {
                 new Sprite({ img: sprites['wood'], width:32, height:32, justify:'bottom', x:0, y:6, z:1}),
                 new Sprite({ img: sprites['ore'], width:32, height:32, justify:'bottom', x:0, y: 6, z: 1}),
                 new Sprite({ img: sprites['sulfur'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
-                new Sprite({ img: sprites['mercury'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1})
+                new Sprite({ img: sprites['mercury'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['gold'], width:32, height:32, justify:'bottom', x:-1, y:6, z: 1}),
+                new Sprite({ img: sprites['gems'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['treasure'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1})
             ];
-            //resources[0].show(100,100);
+            resources[8].hueRotate(30);
+            resources[9].hueRotate(60);
+            resources[10].hueRotate(120);
+            resources[11].hueRotate(200);
             _this.initTrees();
         },
         initTrees: function() {

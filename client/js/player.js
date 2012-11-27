@@ -3,7 +3,6 @@ define(["sprite"], function Player(Sprite) {
         init: function(sprite, anim) {
             var _this = this;
             this.anim = anim;
-            log.info(anim);
             this._super({
                 width: anim.frame.dest.w,
                 height: anim.frame.dest.h,

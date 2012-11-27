@@ -87,6 +87,39 @@ define(function Sprite() {
             this.context.translate(this.width, 0);
             this.context.scale(-1,1);
             this.flipped = !this.flipped;
+        },
+        hueRotate: function(deg) {
+            // TODO: optimize this slow function
+            // alternative is to save the different hue sprite to a new image
+            if (this.canvas instanceof Image) {
+                var canvas = document.createElement("canvas"),
+                    context = canvas.getContext('2d'),
+                    width = this.width,
+                    height = this.height, data;
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(this.canvas,0,0);
+                data = context.getImageData(0,0,width,height);
+                for (var i=0; i<data.data.length; i+=4) {
+                    var d = data.data, hsv, rgb;
+                    if (d[i+3] <= 0) { // ignore 0 alpha
+                        continue;
+                    }
+                    rgb = {r:d[i],g:d[i+1],b:d[i+2]};
+                    hsv = tinycolor(rgb).toHsv();
+                    hsv.h = (deg+hsv.h);
+                    if (hsv.h > 360) {
+                        hsv.h -= 360;
+                    }
+                    rgb = tinycolor(hsv).toRgb();
+                    data.data[i] = rgb.r;
+                    data.data[i+1] = rgb.g;
+                    data.data[i+2] = rgb.b;
+                }
+                context.putImageData(data,0,0);
+                this.canvas = canvas;
+                this.context = context;
+            }
         }
     });
 });

@@ -6,7 +6,11 @@ define(function() {
         'img/wood.png',
         'img/ore.png',
         'img/sulfur.png',
-        'img/mercury.png'
+        'img/mercury.png',
+        'img/gold.png',
+        'img/gems.png',
+        'img/crystal.png',
+        'img/treasure.png'
     ];
     return function(callback) {
         for (var i in sources) {
