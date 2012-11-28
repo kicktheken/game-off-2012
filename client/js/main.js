@@ -57,6 +57,10 @@ define(["engine", "preloader"],function(Engine, Preloader) {
                 e.preventDefault();
                 engine.cursormove(orig.pageX, orig.pageY, true);
             });
+            $('#play').bind('touchend', function() {
+                $('.loadscreen').hide();
+                engine.start();
+            });
 
         } else {
             document.addEventListener('mousedown', function(e) {
@@ -96,6 +100,10 @@ define(["engine", "preloader"],function(Engine, Preloader) {
                     });
                 }
             }
+            $('#play').click(function() {
+                $('.loadscreen').hide();
+                engine.start();
+            });
         }
 
         // initialize audio

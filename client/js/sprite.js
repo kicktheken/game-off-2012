@@ -74,8 +74,10 @@ define(function Sprite() {
             }
         },
         show: function(x,y) {
-            translate(this.canvas, x+this.x, y+this.y);
-            this.canvas.style.display = 'block';
+            if (g.Engine.isStarted()) {
+                translate(this.canvas, x+this.x, y+this.y);
+                this.canvas.style.display = 'block';
+            }
         },
         hide: function() {
             this.canvas.style.display = 'none';

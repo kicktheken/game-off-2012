@@ -12,7 +12,7 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
     var _this;
     var painter, width, height, map,
         radius, save, saves = [], camera, cursor, vs, scrollevents = [], player;
-    var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted = false;
+    var jobqueue, ticks = 0, elapsed = 0, deceleration, maxv, initted, started;
 
     var Engine = Class.extend({
         init: function(sprites) {
@@ -34,6 +34,8 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
             vs = [];
             deceleration = 1;
             maxv = 30;
+            initted = false;
+            started = false;
             //log.setCallback(_this.showStatus);
 
             /*$(document).keypress(function(e) {
@@ -55,11 +57,17 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
         // }}}
         // {{{ cursor
         cursorstart: function(x,y) {
+            if (!started) {
+                return;
+            }
             cursor.press(x,y);
             cursor.draw();
             scrollevents = [];
         },
         cursorend: function() {
+            if (!started) {
+                return;
+            }
             var vector = cursor.release();
             if (!vector) {
                 var ma = player.getMapCoords();
@@ -81,6 +89,9 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
             });
         },
         cursormove: function(x,y, down) {
+            if (!started) {
+                return;
+            }
             var dcoords = cursor.move(x,y);
             if (down && cursor.isDown()) {
                 _this.scroll(dcoords[0], dcoords[1]);
@@ -114,6 +125,8 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
             if (!initted && jobqueue.count() === 0) {
                 log.info((g.ts() - g.INITTIME) + "ms startup");
                 initted = true;
+                $('#loading').hide();
+                $('#play').show();
             }
             var res = jobqueue.work();
             if (res === 0) {
@@ -122,10 +135,16 @@ function Engine(Map, Painter, Player, JobQueue, Cursor, Camera, anims) {
             elapsed += res;
             if (ticks % 100 == 0) {
                 var msg = "ticks: "+ticks+" elapsed: "+elapsed+ " "+jobqueue;
-                msg += " "+camera+" "+player+" "+painter;
+                msg += " "+camera+" "+player+" "+painter+" "+started;
                 log.info(msg);
                 elapsed = 0;
             }
+        },
+        start: function() {
+            started = true;
+        },
+        isStarted: function() {
+            return started;
         }
     });
 
