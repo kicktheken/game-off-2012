@@ -32,12 +32,28 @@ define(function Tile() {
         isTree: function() {
             return (this.r > .6 && this.b > .5);
         },
-        resource: function() {
+        resource: function(palettes) {
             if (this.x === 0 && this.y === 0 || this.traveled) {
                 return false;
             }
             var ri = Math.floor(this.r*256*256);
-            return (ri % 23 === 0) && ri;
+            if (ri % 23 === 0) {
+                var rr = ri % 100;
+                if (rr < 30) {
+                    return 0; // wood
+                } else if (rr < 60) {
+                    return 10; // ore
+                } else if (rr < 80) {
+                    return 1; // gold
+                } else if (rr < 90) {
+                    return 2 + Math.floor((this.r-.5)*6); // sulfur mercury or gems
+                } else if (rr < 95) {
+                    return 11; // treasure
+                } else {
+                    return 5+Math.floor(this.p*palettes); // different color crystals
+                }
+            }
+            return false;
         },
         isVisible: function() {
             return this.visible;

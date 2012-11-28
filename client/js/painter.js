@@ -166,7 +166,7 @@ function Painter(Zone, Sprite, LSystem, Hud) {
             shownqueue[zone] = zone;
         },
         drawPlayer: function() {
-            var iterator, tile, updatedZones = {};
+            var iterator, tile, updatedZones = {}, ri;
             if (!g.MAPREVEAL) {
                 iterator = g.Map.getCircleIterator(player.mx,player.my,player.sight);
                 while (tile = iterator()) {
@@ -184,8 +184,9 @@ function Painter(Zone, Sprite, LSystem, Hud) {
                 }
             }
             tile = g.Map.getTile(player.mx,player.my);
-            if (tile.resource() !== false) {
+            if ((ri=tile.resource(trees.length)) !== false) {
                 tile.traveled = true;
+                hud.increment(ri);
                 for (var i in tile.zones) {
                     var zone = tile.zones[i];
                     updatedZones[zone] = zone;
@@ -239,8 +240,8 @@ function Painter(Zone, Sprite, LSystem, Hud) {
             // draw stuff
             if (tile.isTree()) {
                 _this.drawTree(context, tile, x, y);
-            } else if (tile.isPassable() && (ri = tile.resource()) !== false) {
-                resources[ri%resources.length].draw(context, x, y);
+            } else if (tile.isPassable() && (ri = tile.resource(trees.length)) !== false) {
+                resources[ri].draw(context, x, y);
             }
         },
         drawTree: function(context, tile, x, y) {
