@@ -1,4 +1,4 @@
-define(function() {
+define(function Preloader() {
     var count = 0, sprites = new Object(), key, hook;
     var sources = [
         'img/castle_might.png',
@@ -10,7 +10,9 @@ define(function() {
         'img/gold.png',
         'img/gems.png',
         'img/crystal.png',
-        'img/treasure.png'
+        'img/treasure.png',
+        'img/spyglass.png',
+        'img/winged_boots.png'
     ];
     return function(callback) {
         for (var i in sources) {

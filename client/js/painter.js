@@ -1,10 +1,11 @@
 define([
     "zone",
     "sprite",
-    "lsystem"
+    "lsystem",
+    "hud"
 ],
-function Painter(Zone, Sprite, LSystem) {
-    var _this, zmap, player, rcg = [], trees, resources,
+function Painter(Zone, Sprite, LSystem, Hud) {
+    var _this, zmap, player, rcg = [], trees, resources, hud,
         dsize, zonecount, tilecount, shownqueue, sprites;
     var Painter = Class.extend({
         init: function(_player, _sprites) {
@@ -22,22 +23,23 @@ function Painter(Zone, Sprite, LSystem) {
             tilecount = (g.MAPREVEAL) ? Infinity : 0;
             resources = [
                 new Sprite({ img: sprites['wood'], width:32, height:32, justify:'bottom', x:0, y:6, z:1}),
-                new Sprite({ img: sprites['ore'], width:32, height:32, justify:'bottom', x:0, y: 6, z: 1}),
+                new Sprite({ img: sprites['gold'], width:32, height:32, justify:'bottom', x:-1, y:6, z: 1}),
                 new Sprite({ img: sprites['sulfur'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
                 new Sprite({ img: sprites['mercury'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
-                new Sprite({ img: sprites['gold'], width:32, height:32, justify:'bottom', x:-1, y:6, z: 1}),
                 new Sprite({ img: sprites['gems'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
-                new Sprite({ img: sprites['treasure'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
                 new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
                 new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
                 new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
                 new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
-                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1})
+                new Sprite({ img: sprites['crystal'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1}),
+                new Sprite({ img: sprites['ore'], width:32, height:32, justify:'bottom', x:0, y: 6, z: 1}),
+                new Sprite({ img: sprites['treasure'], width:32, height:32, justify:'bottom', x:0, y:6, z: 1})
             ];
-            resources[8].hueRotate(30);
-            resources[9].hueRotate(60);
-            resources[10].hueRotate(120);
-            resources[11].hueRotate(200);
+            resources[6].hueRotate(30);
+            resources[7].hueRotate(60);
+            resources[8].hueRotate(120);
+            resources[9].hueRotate(200);
+            hud = new Hud(resources);
             _this.initTrees();
         },
         initTrees: function() {
@@ -157,6 +159,7 @@ function Painter(Zone, Sprite, LSystem) {
                 }
             }
             _this.drawPlayer();
+            hud.update();
             return jobs;
         },
         addShown: function(zone) {
@@ -222,8 +225,6 @@ function Painter(Zone, Sprite, LSystem) {
             h = tile.r*rcg.length;
             i = Math.floor(h);
             context.fillStyle = rcg[i](h-i, p);
-            //c = rcg[i](h-i);
-            //context.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
 
             // draw on context
             context.beginPath();
