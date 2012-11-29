@@ -220,12 +220,12 @@ function Painter(Zone, Sprite, LSystem, Hud) {
 
         },
         drawTile: function(context,tile,x,y) {
-            var i, h, p = Math.floor(tile.p*trees.length), ri;
+            var i, h, ri;
 
             // set color
             h = tile.r*rcg.length;
             i = Math.floor(h);
-            context.fillStyle = rcg[i](h-i, p);
+            context.fillStyle = rcg[i](h-i, tile.getP(trees.length));
 
             // draw on context
             context.beginPath();
@@ -245,7 +245,7 @@ function Painter(Zone, Sprite, LSystem, Hud) {
             }
         },
         drawTree: function(context, tile, x, y) {
-            var p = Math.floor(tile.p*trees.length), b = tile.b,
+            var p = tile.getP(trees.length), b = tile.b,
                 l = trees[p] && trees[p].length, i;
             if (l) {
                 i = Math.floor(b*256*256)%l;

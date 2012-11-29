@@ -27,10 +27,10 @@ define(function Tile() {
             return this.visible && (this.x+this.y) % 2 === 0;
         },
         isPassable: function() {
-            return (this.r > .5 && this.r <= .6 || (this.b < .5 && this.r > .6));
+            return (this.r > .5 && this.r <= .6 || (this.b < .6 && this.r > .6));
         },
         isTree: function() {
-            return (this.r > .6 && this.b > .5);
+            return (this.r > .6 && this.b >= .6);
         },
         resource: function(palettes) {
             if (this.x === 0 && this.y === 0 || this.traveled) {
@@ -50,10 +50,19 @@ define(function Tile() {
                 } else if (rr < 95) {
                     return 11; // treasure
                 } else {
-                    return 5+Math.floor(this.p*palettes); // different color crystals
+                    return 5+this.getP(palettes); // different color crystals
                 }
             }
             return false;
+        },
+        getP: function(palettes) {
+            var ret = Math.floor(this.p*(palettes+2))-1;
+            if (ret < 0) {
+                return 0;
+            } else if (ret >= palettes) {
+                return palettes-1;
+            }
+            return ret;
         },
         isVisible: function() {
             return this.visible;
