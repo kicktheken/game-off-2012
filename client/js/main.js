@@ -29,8 +29,9 @@ define(["engine", "preloader"],function(Engine, Preloader) {
     g.BACKSCALE = getDefault(ctx.webkitBackingStorePixelRatio, 1);
     g.SCALE = (window.devicePixelRatio) ? window.devicePixelRatio / g.BACKSCALE : 1;
     g.spritewidth = g.spriteheight = 100;
-    var getparams = window.location.search.replace("?","");
-    var rng = (getparams.length > 0) ? Alea(getparams) : Alea();
+    var getparams = window.location.search.replace("?",""), seed = getparams.replace('mapreveal','');
+    g.MAPREVEAL = (seed !== getparams);
+    var rng = (seed.length > 0) ? Alea(seed) : Alea();
     log.info("seed: "+rng.args);
     Math.random = rng.fract53;
     ctx = null;
