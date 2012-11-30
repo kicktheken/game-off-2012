@@ -5,6 +5,7 @@ Wirlds is a game where your hero explores a procedurally generated world to gath
 <img src="http://i.imgur.com/PWTem.jpg" style="border:0">
 
 ## Gameplay Notes
+
 * Treasure chests increase your line of sight as well as increase your final score
 * Your final score is inversely proportional to the distance your hero traveled plus the amount of treasure chests found
 * Ores randomly give you a nonwood resource or none at all
@@ -23,6 +24,7 @@ Download image assets [here](http://dl.dropbox.com/u/1065170/img.tar.gz) and sav
 Alternatively, you can build a minified version by simply running `sh wirlds/build.sh` and will create a `clientbuild` directory that can run the game
 
 ## Credits
+
 *[Johannes Baagøe](baagoe@baagoe.org) for the [Alea Javascript PRNG](http://baagoe.org/en/w/index.php/Better_random_numbers_for_javascript#Alea)
 *[Jonas Wagner](http://29a.ch/) for the [javascript simplex-noise library](https://github.com/jwagner/simplex-noise.js)
 *[Brian Grinstead](http://www.briangrinstead.com/blog/) for [Tinycolor](http://bgrins.github.com/TinyColor/) and [javascript-astar](https://github.com/bgrins/javascript-astar)
