@@ -44,7 +44,7 @@ define(["engine", "preloader"],function(Engine, Preloader) {
 
         $(window).resize(engine.resize);
 
-        if (g.MOBILE) {
+        if ('ontouchstart' in window) {
             $(document).bind('touchstart', function(e) {
                 e.preventDefault();
                 e = e.originalEvent.touches[0];
