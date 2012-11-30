@@ -11,7 +11,7 @@ Wirlds is a game where your hero explores a procedurally generated world to gath
 * Ores randomly give you a nonwood resource or none at all
 * Crystals correspond to one of the five environments you'll encounter (badlands, desert, grassland, forest, tundra).
 * Gold, sulfur, mercury, and gems appear at increasing altitudes away from water in that order
-* You can cheat by adding `?mapreveal` in front of the url as a GET parameter (.ie http://localhost/wirlds?mapreveal)
+* You can cheat by adding `?mapreveal` in front of the url as a GET parameter (.ie http://localhost/wirlds/?mapreveal)
 * You can revisit a certain world by copying the seed number and putting it as your GET parameter (.ie http://localhost/wirlds/?1354314043038)
 
 ## Setup
