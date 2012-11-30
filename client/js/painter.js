@@ -178,7 +178,7 @@ function Painter(Zone, Sprite, LSystem, Hud) {
                     score = [];
                     score.push(Math.round(player.traveled));
                     score.push(tilecount);
-                    score.push(Math.round(10000000/player.traveled+700000/tilecount));
+                    score.push(Math.round(10000000/player.traveled+100*player.sight));
                 }
                 var center = g.Camera.screenCenter();
                 winscreen.context.fillText('Traveled: '+score[0]+'  Explored: '+score[1]+'   Score: '+score[2],211,150);
@@ -211,8 +211,14 @@ function Painter(Zone, Sprite, LSystem, Hud) {
             if ((ri=tile.resource(trees.length)) !== false) {
                 tile.traveled = true;
                 if (ri === 11) {
+                    g.Sounds.play('heal');
+                    player.sight++;
                 } else {
-                    hud.decrement(ri);
+                    if (hud.decrement(ri)) {
+                        g.Sounds.play('coin');
+                    } else {
+                        g.Sounds.play('nothing');
+                    }
                 }
                 for (var i in tile.zones) {
                     var zone = tile.zones[i];

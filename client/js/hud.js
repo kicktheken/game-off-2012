@@ -41,11 +41,11 @@ define(["sprite"],function Hud(Sprite) {
                 var r = Math.random();
                 if (r < .5) {
                     var i = Math.floor(r*18);
-                    this.resources[i+1].count--;
+                    return (--this.resources[i+1].count >= 0);
                 }
-            } else {
-                this.resources[ri].count--;
+                return false;
             }
+            return (--this.resources[ri].count >= 0);
         },
         increment: function(ri) {
             this.resources[ri].count++;

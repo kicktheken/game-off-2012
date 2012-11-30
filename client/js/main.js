@@ -1,4 +1,4 @@
-define(["engine", "preloader"],function(Engine, Preloader) {
+define(["engine", "preloader", "sounds"],function(Engine, Preloader, Sounds) {
     var engine, ctx, capabilities, sprites;
     capabilities = [
         "canvas",
@@ -12,7 +12,7 @@ define(["engine", "preloader"],function(Engine, Preloader) {
     //log.info(Modernizr);
     for (var i=0; i<capabilities.length; i++) {
         if (!Modernizr[capabilities[i]]) {
-            alert("Your browser does not support "+capabilities[i]);
+            log.info("Your browser does not support "+capabilities[i]);
             //return;
         }
     }
@@ -59,6 +59,7 @@ define(["engine", "preloader"],function(Engine, Preloader) {
                 engine.cursormove(orig.pageX, orig.pageY, true);
             });
             $('#play').bind('touchend', function() {
+                new Sounds();
                 $('.loadscreen').hide();
                 engine.start();
             });
@@ -102,13 +103,11 @@ define(["engine", "preloader"],function(Engine, Preloader) {
                 }
             }
             $('#play').click(function() {
+                new Sounds();
                 $('.loadscreen').hide();
                 engine.start();
             });
         }
-
-        // initialize audio
-        //music = new Audio('audio/music/aoe_discovery.mp3');
 
         // animation loop
         (function animloop() {
