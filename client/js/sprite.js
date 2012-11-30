@@ -4,7 +4,7 @@ define(function Sprite() {
             this.width = args.width;
             this.height = args.height;
             this.scale = getDefault(args.scale, g.SCALE);
-            if (args.img) {
+            if (args.img && !args.canvas) {
                 var _this = this;
                 if (typeof args.img === 'string') {
                     this.canvas = new Image();
@@ -40,6 +40,9 @@ define(function Sprite() {
                     this.context.scale(this.scale, this.scale);
                     this.canvas.style.width = this.width + 'px';
                     this.canvas.style.height = this.height + 'px';
+                }
+                if (args.img) {
+                    this.context.drawImage(args.img,0,0);
                 }
                 this.ready = true;
             }

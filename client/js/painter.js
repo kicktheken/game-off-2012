@@ -5,8 +5,8 @@ define([
     "hud"
 ],
 function Painter(Zone, Sprite, LSystem, Hud) {
-    var _this, zmap, player, rcg = [], trees, resources, hud,
-        dsize, zonecount, tilecount, shownqueue, sprites;
+    var _this, zmap, player, rcg = [], trees, resources, hud, score,
+        dsize, zonecount, tilecount, shownqueue, sprites, winscreen;
     var Painter = Class.extend({
         init: function(_player, _sprites) {
             if (typeof _this !== 'undefined') {
@@ -40,6 +40,20 @@ function Painter(Zone, Sprite, LSystem, Hud) {
             resources[8].hueRotate(120);
             resources[9].hueRotate(200);
             hud = new Hud(resources);
+            winscreen = new Sprite({
+                img: sprites['parchment'],
+                canvas: true,
+                width: 422,
+                height:179,
+                justify:'center',
+                z:5
+            });
+            winscreen.canvas.style.position = 'absolute';
+            winscreen.canvas.style.display = 'none';
+            winscreen.context.font = 'bold 12pt Arial';
+            winscreen.context.textAlign = 'center';
+            winscreen.context.fillText("You've made the Branch of Nordrassil!", 211, 40);
+            winscreen.context.drawImage(sprites['branch'],83,60);
             _this.initTrees();
         },
         initTrees: function() {
@@ -159,7 +173,17 @@ function Painter(Zone, Sprite, LSystem, Hud) {
                 }
             }
             _this.drawPlayer();
-            hud.update();
+            if (hud.update()) {
+                if (!score) {
+                    score = [];
+                    score.push(Math.round(player.traveled));
+                    score.push(tilecount);
+                    score.push(Math.round(10000000/player.traveled+700000/tilecount));
+                }
+                var center = g.Camera.screenCenter();
+                winscreen.context.fillText('Traveled: '+score[0]+'  Explored: '+score[1]+'   Score: '+score[2],211,150);
+                winscreen.show(center.x,center.y);
+            }
             return jobs;
         },
         addShown: function(zone) {
@@ -186,7 +210,10 @@ function Painter(Zone, Sprite, LSystem, Hud) {
             tile = g.Map.getTile(player.mx,player.my);
             if ((ri=tile.resource(trees.length)) !== false) {
                 tile.traveled = true;
-                hud.increment(ri);
+                if (ri === 11) {
+                } else {
+                    hud.decrement(ri);
+                }
                 for (var i in tile.zones) {
                     var zone = tile.zones[i];
                     updatedZones[zone] = zone;

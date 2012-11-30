@@ -12,7 +12,9 @@ define(function Preloader() {
         'img/crystal.png',
         'img/treasure.png',
         'img/spyglass.png',
-        'img/winged_boots.png'
+        'img/winged_boots.png',
+        'img/parchment.png',
+        'img/branch.png'
     ];
     return function(callback) {
         for (var i in sources) {

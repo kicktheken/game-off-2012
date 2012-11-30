@@ -44,10 +44,8 @@ define(function Tile() {
                 } else if (rr < 60) {
                     return 10; // ore
                 } else if (rr < 80) {
-                    return 1; // gold
+                    return 1 + Math.floor((this.r-.5)*8); // gold, sulfur, mercury or gems
                 } else if (rr < 90) {
-                    return 2 + Math.floor((this.r-.5)*6); // sulfur mercury or gems
-                } else if (rr < 95) {
                     return 11; // treasure
                 } else {
                     return 5+this.getP(palettes); // different color crystals

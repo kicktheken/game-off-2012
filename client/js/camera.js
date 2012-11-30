@@ -53,6 +53,12 @@ define(function Camera() {
             this.miny = Math.min(my*g.theight/2,this.miny);
         },
         // conversions helpers
+        screenCenter: function() {
+            return {
+                x: this.width/2,
+                y: this.height/2
+            };
+        },
         cursorCenter: function() {
             return {
                 x: this.width/2 - Math.round(this.x),
