@@ -40,8 +40,14 @@ define(["sprite"],function Hud(Sprite) {
             if (ri === 10) {
                 var r = Math.random();
                 if (r < .5) {
-                    var i = Math.floor(r*18);
-                    return (--this.resources[i+1].count >= 0);
+                    var a = [], i;
+                    for (i=1; i<10; i++) {
+                        if (this.resources[i].count > 0) {
+                            a.push(i);
+                        }
+                    }
+                    i = Math.floor(r*2*a.length);
+                    return (--this.resources[a[i]].count >= 0);
                 }
                 return false;
             }
